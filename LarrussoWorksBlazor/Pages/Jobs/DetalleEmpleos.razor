@@ -1,0 +1,100 @@
+﻿@page "/empleos/detalles/{id:int}"
+
+@using LarrussoWorksBlazor.Data.Models
+@using LarrussoWorksBlazor.Data
+@inject HttpClient http
+@using System.Net.Http
+@using System.Net.Http.Json
+
+
+<div class="container">
+    <h1>Detalles del Empleo con el Id: @empleo.IdEmpleo</h1>
+
+    <div class="col-md-9">
+        <div class="card text-white bg-dark mb-3 text-center" style="margin: 10px;">
+            <div class="card-header">
+                <strong>Empleo: @empleo.NombreEmpleo</strong>
+            </div>
+            <div class="card-body">
+                <div class="col-12">
+                    <img src="img/EmpleosImg/@empleo.ImagenEmpleo" width="350" />
+                </div>
+                <div class="col-12">
+                    <span><strong>Descripción: </strong>@empleo.DescripcionEmpleo</span>
+                </div>
+                <div class="col-12">
+                    <span><strong>Requisitos: </strong>@empleo.RequisitosEmpleo</span>
+                </div>
+                <div class="col-12">
+                    <span><strong>Prestaciones: </strong>@empleo.PrestacionesEmpleo</span>
+                </div>
+                <div class="col-12">
+                    <span><strong>Ubicación: </strong>@empleo.UbicacionEmpleo</span>
+                </div>
+                <div class="col-12">
+                    <span><strong>Categoria: </strong>@categoria.NombreCategoria</span>
+                </div>
+                <div class="col-12">
+                    <span><strong>Empresa: </strong>@empresa.NombreEmpresa</span>
+                </div>
+                <div class="col-12">
+                    <span><strong>Teléfono: </strong>@empresa.TelefonoEmpresa</span>
+                </div>
+                <div class="col-12">
+                    <span><strong>Correo: </strong>@empresa.CorreoEmpresa</span>
+                </div>
+            </div>
+            <div class="card-footer">
+                @if (atn.Nivel != "Administrador")
+                {
+                    <span class="text-center">
+                        <a class="btn btn-primary" href="/empleos">Regresar</a>
+                    </span>
+                }
+                else
+                {
+
+                    <span class="text-center">
+                        <a href="/empleos/update/@empleo.IdEmpleo" class="btn btn-warning" title="Editar">Editar</a>
+                    </span>
+                    <span class="text-center">
+                        <a class="btn btn-primary" href="/empleos">Regresar</a>
+                    </span>
+                }
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    Autenticacion atn = new Autenticacion();
+
+    [Parameter]
+
+    public int id { get; set; }
+
+    Empleo empleo = new Empleo();
+
+    Categoria categoria = new Categoria();
+
+    Empresa empresa = new Empresa();
+
+    protected override async Task OnInitializedAsync()
+    {
+        empleo = await http.GetFromJsonAsync<Empleo>($"api/Empleo/{id}");
+
+        int idCategoria = empleo.IdCategoria;
+        var responseCategoria = await http.GetFromJsonAsync<Categoria>($"api/Categoria/{idCategoria}");
+        categoria = responseCategoria;
+
+        int idEmpresa = empleo.IdEmpresa;
+        var responseEmpresa = await http.GetFromJsonAsync<Empresa>($"api/Empresa/{idEmpresa}");
+        empresa = responseEmpresa;
+
+        atn = IsDataNull.CreateInstanceIfIsNull<Autenticacion>(await LocalStorage.GetValue<Autenticacion>(ValuesKeys.Persona));
+
+    }
+}

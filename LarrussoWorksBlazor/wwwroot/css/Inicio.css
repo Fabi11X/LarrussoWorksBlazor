@@ -1,0 +1,292 @@
+﻿.jumbotron2 {
+    background-image: url(https://static.wixstatic.com/media/8deefe_80cb5313220e4217995accab1ed24981~mv2.gif);
+    background-size: cover;
+    position: relative;
+    height: 700px;
+}
+
+.imgprincipal {
+    width: 70%;
+    margin-left: 50px;
+    animation: up-down 2s ease-in-out infinite alternate-reverse both
+}
+
+@keyframes up-down {
+    0% {
+        transform: translateY(0)
+    }
+
+    50% {
+        transform: translateY(30px)
+    }
+
+    100% {
+        transform: translateY(10px)
+    }
+}
+
+.h3principal {
+    font-weight: 700;
+    font-size: 40px;
+    line-height: 50px;
+    margin-bottom: 20px;
+    color: #434175;
+}
+
+.jumbotron2:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0,0,0,0.6);
+}
+
+.Inovation {
+    font-family: monospace;
+    font-size: 50px;
+    margin: 10px;
+    margin-top: 170px;
+    display: block;
+    white-space: nowrap;
+    border-right: 4px solid;
+    width: 26ch;
+    animation: typingauto 2s steps(12) alternate infinite;
+    overflow: hidden;
+    font-weight: bold;
+}
+
+@keyframes typingauto {
+    from {
+        width: 0
+    }
+}
+
+
+.Titledown {
+    margin: 20px;
+}
+
+.Medio {
+    position: relative;
+    top: 100%
+}
+
+
+.larusso {
+    margin: 10px;
+    position: relative;
+    top: 130px;
+    font-size: 20px;
+    color: white;
+}
+
+.iconjobfirst {
+    margin: 10px
+}
+
+
+.mejoresempleos {
+    font-family: 'Jost', sans-serif;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+.cuartoespacio {
+    font-size: 30px;
+}
+
+.parrafocuarto {
+    font-size: 20px;
+}
+
+
+.inputempleo {
+    height: 50px
+}
+
+
+.title2block {
+    font-family: 'Raleway', sans-serif;
+}
+
+.p2block {
+    font-size: 20px;
+    color: black;
+}
+
+.title3block {
+    font-size: 40px;
+}
+
+.columnsEstadis {
+    color: white;
+}
+
+.modalcrearcuenta {
+    background-color: black;
+    border: 0;
+    color: rgba(255,255,255,.55);
+}
+
+.numeros {
+    color: #434175;
+    font-size: 50px;
+    margin-left: 60px;
+    font-weight: 600;
+}
+
+.jumbotronestadisticas {
+    background-color: #f9f9fa;
+}
+
+.jumbotronimg {
+    background-color: #f9f9fa;
+}
+
+.equipoglobal {
+    font-family: 'Jost', sans-serif;
+}
+
+.jumbotroncontact {
+    background-color: #f9f9fa;
+}
+
+.card {
+    box-shadow: 5px 5px 21px #6c757d;
+    border: none;
+}
+
+.svg {
+    margin-left: 60px;
+}
+
+.iconjob {
+    margin: -65px;
+    color: dodgerblue;
+    font-size: 20px;
+}
+
+.iconjob2 {
+    margin: -65px;
+    color: #11dbcf;
+    font-size: 20px;
+}
+
+.iconjob3 {
+    margin: -65px;
+    color: #ffa76e;
+    font-size: 20px;
+}
+
+.iconjob4 {
+    margin: -65px;
+    color: #e80368;
+    font-size: 20px;
+}
+
+.section-title {
+    text-align: center;
+    padding-bottom: 30px;
+}
+
+    .section-title h2 {
+        font-size: 32px;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        position: relative;
+        color: #434175;
+    }
+
+        .section-title h2::after {
+            content: "";
+            position: absolute;
+            display: block;
+            width: 50px;
+            height: 3px;
+            background: #5a5af3;
+            bottom: 0;
+            left: calc(50% - 25px);
+        }
+
+
+.check1 {
+    color: lightseagreen;
+    font-size 20px;
+}
+
+ul {
+    list-style: none;
+    font-size: 18px;
+    padding: 0;
+}
+
+li {
+    padding-bottom: 10px;
+}
+
+
+.read-more {
+    font-family: "Poppins", sans-serif;
+    font-weight: 500;
+    font-size: 16px;
+    letter-spacing: 1px;
+    display: inline-block;
+    padding: 10px 50px 10px 28px;
+    border-radius: 5px;
+    transition: 0.5s;
+    color: #fff;
+    background: linear-gradient(45deg, #5846f9 0%, #7b27d8 100%);
+    position: relative;
+}
+
+.textoauto {
+    display: block;
+    font-family: monospace;
+    white-space: nowrap;
+    border-right: 4px solid;
+    width: 12ch;
+    animation: typing 2s steps(12) alternate infinite;
+    overflow: hidden;
+}
+
+@keyframes typing {
+    from {
+        width: 0
+    }
+}
+
+.cardtext1 {
+    color: #434175;
+    font-weight: bold;
+}
+
+.textglobal {
+    color: #434175;
+    font-weight: bold;
+}
+
+.textjhonson {
+    color: #434175;
+}
+
+.Contactanosauto {
+    display: block;
+    font-weight: bold;
+    white-space: nowrap;
+    border-right: 4px solid;
+    width: 16ch;
+    animation: typing 2s steps(12) alternate infinite;
+    overflow: hidden;
+}
+
+@keyframes typing {
+    from {
+        width: 0
+    }
+}

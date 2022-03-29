@@ -1,0 +1,166 @@
+﻿@page "/empresaRegistro"
+@using LarrussoWorksBlazor.Data.Models
+@using LarrussoWorksBlazor.Data
+@using System.Net.Http
+@using System.Net.Http.Json
+@inject HttpClient http
+@inject NavigationManager NavigationManager
+
+@using Microsoft.AspNetCore.Hosting
+@inject IWebHostEnvironment env
+@using System.IO
+
+
+<div class="container">
+
+    <div class="text-center">
+        <h1>Registra a tu empresa</h1>
+    </div>
+
+
+    <EditForm Model="@empresa">
+        <form class="container-border" @onsubmit="Guardar">
+
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="col-form-label" for="nombreempresa">Nombre</label>
+                    <input placeholder="Grupo Bimbo S.A De C.V" class="form-control" @bind-value="@empresa.NombreEmpresa" id="nombreempresa" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="col-form-label" for="logoempresa">Logo</label>
+                    <InputFile OnChange="SubirImagen" multiple class="form-control" @bind-Value="@empresa.LogoEmpresa" id="logoempresa"></InputFile>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <label class="col-form-label" for="descripcionempresa">Descripción</label>
+                <input placeholder="Descripcion de la empresa" class="form-control" @bind-value="@empresa.DescripcionEmpresa" id="descripcionempresa" />
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-6">
+                    <label class="col-form-label" for="ubicacionempresa">Ubicación</label>
+                    <input placeholder="Calle 109A #123 x 109 y 111" class="form-control" @bind-value="@empresa.UbicacionEmpresa" id="ubicacionempresa" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="col-form-label" for="telefonoempresa">Teléfono</label>
+                    <input placeholder="9993826099" class="form-control" @bind-value="@empresa.TelefonoEmpresa" id="telefonoempresa" />
+                </div>
+            </div>
+
+
+
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="col-form-label" for="correoempresa">Correo</label>
+                    <input placeholder="correo@gmail.com" class="form-control" @bind-value="@empresa.CorreoEmpresa" id="correoempresa" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="col-form-label" for="contrasenaempresa">Contraseña</label>
+                    <input placeholder="Contraseña" class="form-control" @bind-value="@empresa.ContrasenaEmpresa" id="contrasenaempresa" />
+                </div>
+
+            </div>
+
+            <br />
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Guardar</button>
+                <a class="btn btn-danger" href="/Login">Cancelar</a>
+            </div>
+
+        </form>
+    </EditForm>
+
+</div>
+
+@code{
+    [Parameter]
+
+    public int id { get; set; }
+
+    public bool estaActualizado { get; set; } = false;
+
+    string mensaje = "Aun no ha seleccionado algun archivo";
+
+    IReadOnlyList<IBrowserFile> archivoSeleccionado;
+
+    bool cargando = true;
+
+    Empresa empresa = new Empresa();
+
+    protected override async Task OnInitializedAsync()
+    {
+        estaActualizado = id != 0;
+        if (estaActualizado)
+        {
+            var response = await http.GetFromJsonAsync<Empresa>($"api/Empresa/{id}");
+            if (response != null)
+            {
+                empresa = response;
+            }
+        }
+        cargando = false;
+    }
+
+    private void SubirImagen(InputFileChangeEventArgs im)
+    {
+        archivoSeleccionado = im.GetMultipleFiles();
+        mensaje = $"{archivoSeleccionado.Count} archivo seleccionado";
+        this.StateHasChanged();
+    }
+
+    protected async Task Guardar()
+    {
+        foreach (var archivo in archivoSeleccionado)
+        {
+            var nombreImagen = empresa.LogoEmpresa;
+            Stream stream = archivo.OpenReadStream();
+
+            var carpeta = $"{env.WebRootPath}\\img\\EmpresaImg\\{archivo.Name}";
+
+            if (estaActualizado)
+            {
+                var carpetaAct = $"{env.WebRootPath}\\img\\EmpresaImg\\";
+                string rutaArchivo = Path.Combine(carpetaAct, nombreImagen);
+                FileInfo infoArchivo = new FileInfo(rutaArchivo);
+
+                if (infoArchivo.Exists)
+                {
+                    infoArchivo.Delete();
+                }
+
+            }
+
+            empresa.LogoEmpresa = archivo.Name;
+            FileStream fileStream = File.Create(carpeta);
+            await stream.CopyToAsync(fileStream);
+            stream.Close();
+            fileStream.Close();
+        }
+
+        mensaje = $"{archivoSeleccionado.Count} archivo guardado";
+        this.StateHasChanged();
+
+        empresa.NivelEmpresa = "Empresa";
+
+        HttpResponseMessage response;
+        if (estaActualizado)
+        {
+            response = await http.PutAsJsonAsync<Empresa>($"api/Empresa/ActualizarEmpresa/{id}", empresa!);
+        }
+        else
+        {
+            response = await http.PostAsJsonAsync<Empresa>($"api/Empresa/CrearEmpresa", empresa!);
+        }
+        Empresa guardado = response.Content.ReadFromJsonAsync<Empresa>().Result;
+        NavigationManager.NavigateTo("/login");
+    }
+
+}

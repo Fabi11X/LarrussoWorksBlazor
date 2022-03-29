@@ -1,0 +1,35 @@
+﻿@page "/empresas/delete/{id:int}"
+@using LarrussoWorksBlazor.Data.Models
+@using LarrussoWorksBlazor.Data
+@using System.Net.Http
+@using System.Net.Http.Json
+@inject HttpClient http
+@inject NavigationManager NavigationManager;
+
+<h1>¿Está seguro que desea borrar la Empresa?</h1>
+
+<button class="btn btn-outline-success" @onclick="ConfirmarEliminacion">Confirmar</button>
+<a class="btn btn-outline-danger" href="/empresas">Cancelar</a>
+
+@code { 
+    
+    [Parameter]
+            
+    public int id { get; set; }
+            
+    Empresa empresa;
+            
+    protected override async Task OnInitializedAsync()
+    {
+        empresa = await http.GetFromJsonAsync<Empresa>($"api/Empresa/{id}");
+    }
+    
+    protected async Task ConfirmarEliminacion()
+    {
+        var response = await http.DeleteAsync($"api/Empresa/BorrarEmpresa/{id}");
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/empresas");
+        }
+    }  
+}

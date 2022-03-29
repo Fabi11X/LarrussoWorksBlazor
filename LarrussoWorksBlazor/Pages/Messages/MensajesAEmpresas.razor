@@ -1,0 +1,79 @@
+﻿@page  "/mensajesaempresas/{id:int}"
+
+@using LarrussoWorksBlazor.Data.Models
+@using LarrussoWorksBlazor.Data
+@inject HttpClient http
+@using System.Net.Http
+@using System.Net.Http.Json
+@inject NavigationManager NavigationManager
+
+
+<div class="container">
+    <div class="text-center">
+        <h1>Enviar Mensaje</h1>
+    </div>
+
+    <EditForm Model="@mensajes">
+        <form class="container-border" @onsubmit="Guardar">
+            <div class="mb-2">
+                <label class="col-form-label" for="idusuario">Usuario</label>
+                <input disabled class="form-control"  placeholder="@usuarios.NombreUsuario" id="idusuario" />
+            </div>
+
+            <div class="mb-2">
+                <label class="col-form-label" for="idempleo">Empresa</label>
+                <input disabled class="form-control" placeholder="@empleos.NombreEmpleo" id="idempleo" />
+            </div>
+
+            <div class="mb-2">
+                <label class="col-form-label" for="buzonmensaje">Mensaje</label>
+                <InputText class="form-control" @bind-Value="@mensajes.BuzonMensaje" id="buzonmensaje"></InputText>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Guardar</button>
+                <a class="btn btn-danger" href="/empleos">Cancelar</a>
+            </div>
+
+        </form>
+    </EditForm>
+
+</div>
+
+
+@code{ 
+
+    Autenticacion atn = new Autenticacion();
+
+    [Parameter]
+
+    public int id { get; set; }
+
+    Mensaje mensajes = new Mensaje();
+
+    Usuario usuarios = new Usuario();
+
+    Empleo empleos = new Empleo();
+
+    protected override async Task OnInitializedAsync()
+    {
+        atn = IsDataNull.CreateInstanceIfIsNull<Autenticacion>(await LocalStorage.GetValue<Autenticacion>(ValuesKeys.Persona));
+
+        usuarios = await http.GetFromJsonAsync<Usuario>($"api/Usuario/{atn.id}");
+        empleos = await http.GetFromJsonAsync<Empleo>($"api/Empleo/{id}");
+
+    }
+
+    protected async Task Guardar()
+    {
+        mensajes.IdUsuario = atn.id;
+        mensajes.IdEmpleo = id;
+
+
+        HttpResponseMessage response;
+      
+        response = await http.PostAsJsonAsync<Mensaje>($"/api/Mensaje/CrearMensajes", mensajes!);
+        
+        Mensaje guardado = response.Content.ReadFromJsonAsync<Mensaje>().Result;
+        NavigationManager.NavigateTo("/empleos");
+    } }

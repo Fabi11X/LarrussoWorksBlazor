@@ -1,0 +1,194 @@
+﻿@page "/administradores/add"
+@page "/administradores/update/{id:int}"
+
+@using LarrussoWorksBlazor.Data.Models
+@using LarrussoWorksBlazor.Data
+@using System.Net.Http
+@using System.Net.Http.Json
+@inject HttpClient http
+@inject NavigationManager NavigationManager
+
+@using Microsoft.AspNetCore.Hosting
+@inject IWebHostEnvironment env
+@using System.IO
+
+<div class="container">
+
+    <div class="text-center">
+        <h1>@(estaActualizado ? $"Editar Administrador[Id: {administrador.IdAdmin}]" : "Agregar Administrador")</h1>
+    </div>
+ 
+    <EditForm Model="@administrador">
+        <DataAnnotationsValidator/>
+
+        <form class="container-border" @onsubmit="Guardar">
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="col-form-label" for="nombreadmin">Nombre(s)</label>
+                    <input required placeholder="Liza" class="form-control" @bind-value="@administrador.NombreAdmin" id="nombreadmin" />
+                    <ValidationMessage For="@(()=> administrador.NombreAdmin)" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="col-form-label" for="apellidoadmin">Apellido(s)</label>
+                    <input required placeholder="Rivero" class="form-control" @bind-value="@administrador.ApellidoAdmin" id="apellidoadmin" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="col-form-label" for="sexoadmin">Sexo</label>
+                    <input required placeholder="Masculino / Femenino" class="form-control" @bind-value="@administrador.SexoAdmin" id="sexoadmin" />
+
+                </div>
+
+                <div class="col-md-6">
+                    <label class="col-form-label" for="fechanacadmin">Fecha Nacimiento</label>
+                    <input required placeholder="2002/09/15" class="form-control" @bind-value="@administrador.FechanacAdmin" id="fechanacadmin" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="col-form-label" for="telefonoadmin">Teléfono</label>
+                    <input required placeholder="9993826099" class="form-control" @bind-value="@administrador.TelefonoAdmin" id="telefonoadmin" />
+                </div>
+                <div class="col-md-6">
+                    <label class="col-form-label" for="direccionadmin">Dirección</label>
+                    <input required placeholder="Calle 65K #577 x 109 y 111" class="form-control" @bind-value="@administrador.DireccionAdmin" id="direccionadmin" />
+                </div>
+            </div>
+
+            @if (estaActualizado == false)
+            {
+                <div class="row">
+
+                    <div class="col-md-6">
+                        <label class="col-form-label" for="correoadmin">Correo</label>
+                        <input required placeholder="email@gmail.com" class="form-control" @bind-value="@administrador.CorreoAdmin" id="correoadmin" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="col-form-label" for="contrasenaadmin">Contraseña</label>
+                        <input required placeholder="Contraseña" class="form-control" type="password" @bind-value="@administrador.ContrasenaAdmin" id="contrasenaadmin" />
+                    </div>
+
+                </div>
+            }
+
+            <h3>@mensaje</h3>
+            <div class="mb-2">
+                <label class="col-form-label" for="fotografiaadmin">Fotografía</label>
+                <InputFile OnChange="SubirImagen"  multiple class="form-control" @bind-Value="@administrador.FotografiaAdmin" id="fotografiaadmin" />
+            </div>
+
+            <br />
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Guardar</button>
+                <a class="btn btn-danger" href="/Administradores">Cancelar</a>
+            </div>
+
+
+
+        </form>
+    </EditForm>
+
+</div>
+
+@code{
+    [Parameter]
+
+    public int id { get; set; }
+
+    public bool estaActualizado { get; set; } = false;
+
+    string mensaje = "Aun no ha seleccionado algun archivo";
+
+    IReadOnlyList<IBrowserFile> archivoSeleccionado;
+
+    bool cargando = true;
+
+    Administrador administrador = new Administrador();
+
+    protected override async Task OnInitializedAsync()
+    {
+        estaActualizado = id != 0;
+        if (estaActualizado)
+        {
+            var response = await http.GetFromJsonAsync<Administrador>($"api/Administrador/{id}");
+            if (response != null)
+            {
+                administrador = response;
+            }
+        }
+        cargando = false;
+    }
+
+    private void SubirImagen(InputFileChangeEventArgs im)
+    {
+        archivoSeleccionado = im.GetMultipleFiles();
+        mensaje = $"{archivoSeleccionado.Count} archivo seleccionado";
+        this.StateHasChanged();
+    }
+
+
+    protected async Task Guardar()
+    {
+
+        foreach (var archivo in archivoSeleccionado)
+        {
+            var nombreImagen = administrador.FotografiaAdmin;
+            Stream stream = archivo.OpenReadStream();
+
+            var carpeta = $"{env.WebRootPath}\\img\\AdministradorsImg\\{archivo.Name}";
+
+            if (estaActualizado)
+            {
+                var carpetaAct = $"{env.WebRootPath}\\img\\AdministradorsImg\\";
+                string rutaArchivo = Path.Combine(carpetaAct, nombreImagen);
+                FileInfo infoArchivo = new FileInfo(rutaArchivo);
+
+                if (infoArchivo.Exists)
+                {
+                    infoArchivo.Delete();
+                }
+
+            }
+
+            administrador.FotografiaAdmin = archivo.Name;
+            FileStream fileStream = File.Create(carpeta);
+            await stream.CopyToAsync(fileStream);
+            stream.Close();
+            fileStream.Close();
+        }
+
+
+        administrador.NivelAdmin = "Administrador";
+
+        HttpResponseMessage response;
+        if (estaActualizado)
+        {
+            response = await http.PutAsJsonAsync<Administrador>($"api/Administrador/ActualizarAdministrador/{id}", administrador!);
+        }
+        else
+        {
+            response = await http.PostAsJsonAsync<Administrador>($"api/Administrador/CrearAdmin", administrador!);
+            if (response.IsSuccessStatusCode)
+            {
+                await agregarAdministradorMessage();
+                await Task.Delay(2500);
+                NavigationManager.NavigateTo("/administradores");
+            }
+        }
+        Administrador guardado = response.Content.ReadFromJsonAsync<Administrador>().Result;
+        NavigationManager.NavigateTo("/administradores");
+    }
+
+    protected async Task agregarAdministradorMessage()
+    {
+        await js.InvokeVoidAsync("agregarAdministradores");
+    }
+
+
+}

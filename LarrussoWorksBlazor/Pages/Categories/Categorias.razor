@@ -1,0 +1,133 @@
+﻿@page "/categorias"
+
+@using LarrussoWorksBlazor.Data.Models
+@using LarrussoWorksBlazor.Data
+@inject HttpClient http
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Text.Json
+
+<div class="container">
+    <br />
+    <div class="title">
+        <div class="title_content">
+            <h1>Categorias</h1>
+        </div>
+        <div class="title__btn">
+            <a href="/categorias/add" class="btn btn-success">
+                <i class="fas fas-plus"></i>
+                &nbsp;
+                Agregar
+            </a>
+        </div>
+    </div>
+
+    <p>Tabla de los Categorias</p>
+
+    @if (categorias == null)
+    {
+        <p><em>Cargando...</em></p>
+    }
+    else
+    {
+        <div class="form-inline">
+            <label class="sr-only" for="nombre-filtro">Buscar</label>
+            <input type="text" class="form-control mb-2 mr-sm-2"
+                   @bind="nombreCategoriaFiltro" placeholder="Filtrar por Nombre" />
+            <button type="button" class="btn btn-primary mr-sm-2 mb-2"
+                    @onclick="Buscar">
+                Filtrar
+            </button>
+            <button type="button" class="btn btn-danger mb-2"
+                    @onclick="Limpiar">
+                Limpiar
+            </button>
+
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Categoria</th>
+                    <th>Opciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var categoria in categorias)
+                {
+                    <tr>
+                        <td>@categoria.NombreCategoria</td>
+                        <td>
+                            <span class="icon">
+                                <a href="/categorias/update/@categoria.IdCategoria" class="btn btn-info" title="Editar">Editar</a>
+                            </span>
+                            <span class="icon">
+                                <a href="/categorias/delete/@categoria.IdCategoria" class="btn btn-danger" title="Eliminar">Eliminar</a>
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <Paginacion PaginasTotales="paginasTotales" PaginaActual="paginaActual"
+                    PaginaSeleccionada="PaginaSeleccionada">
+        </Paginacion>
+    }
+
+
+    @code {
+
+        //Paginacion Empleo
+        private int paginasTotales;
+        private int paginaActual;
+
+        //Busqueda Empleo
+        private string nombreCategoriaFiltro = string.Empty;
+
+        private readonly string api = "api/Categoria/ObtenerCategoriaII";
+        private IList<Categoria> categorias;
+
+        protected override async Task OnInitializedAsync()
+        {
+            await ObtenerCategoria();
+            //categorias = await http.GetFromJsonAsync<IList<Categoria>>(api);
+        }
+
+        private async Task PaginaSeleccionada(int pagina)
+        {
+            paginaActual = pagina;
+            await ObtenerCategoria(pagina);
+        }
+
+        private async Task Buscar()
+        {
+            paginaActual = 1;
+            await ObtenerCategoria();
+        }
+
+        private async Task Limpiar()
+        {
+            nombreCategoriaFiltro = string.Empty;
+            paginaActual = 1;
+            await ObtenerCategoria();
+        }
+
+        async Task ObtenerCategoria(int pagina = 1, int cantidadRegistroAMostrar = 10)
+        {
+            var httpResponse = await http.GetAsync($"{api}?pagina={pagina}&CantidadAMostrar={cantidadRegistroAMostrar}&nombre={nombreCategoriaFiltro}");
+
+            if (httpResponse.IsSuccessStatusCode)
+            {
+                paginasTotales = int.Parse(httpResponse.Headers.GetValues("totalPaginas").FirstOrDefault());
+
+                var responseString = await httpResponse.Content.ReadAsStringAsync();
+
+                categorias = JsonSerializer.Deserialize<IList<Categoria>>(responseString, new JsonSerializerOptions()
+                { PropertyNameCaseInsensitive = true });
+            }
+
+            else
+            {
+            }
+        }
+    }
+</div>

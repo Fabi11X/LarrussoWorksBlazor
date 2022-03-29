@@ -1,0 +1,75 @@
+﻿@page "/contactanos"
+
+@using LarrussoWorksBlazor.Data.Models
+@using LarrussoWorksBlazor.Data
+@inject HttpClient http
+@using System.Net.Http
+@using System.Net.Http.Json
+
+<div class="container">
+    <div class="container">
+        <br />
+        <div class="title">
+            <div class="title_content">
+                <h1>Contactanos</h1>
+            </div>
+            <div class="title__btn">
+                <a href="/contactanos/add" class="btn btn-success">
+                    <i class="fas fas-plus"></i>
+                    &nbsp;
+                    Agregar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (contactanos == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Correo</th>
+                    <th>Asunto</th>
+                    <th>Mensaje</th>
+                    <th>Opciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var contacto in contactanos)
+                {
+                    <tr>
+                        <td>@contacto.CorreoContacto</td>
+                        <td>@contacto.AsuntoContacto</td>
+                        <td>@contacto.MensajeContacto</td>
+                        <td>
+                            <span class="icon">
+                                <a href="/contactanos/update/@contacto.IdContacto" class="btn btn-info" title="Editar">Editar</a>
+                            </span>
+                            <span class="icon">
+                                <a href="/contactanos/delete/@contacto.IdContacto" class="btn btn-danger" title="Eliminar">Eliminar</a>
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+
+@code{
+    private readonly string api = "api/Contacto/ObtenerContactanos";
+    private IList<Contactano> contactanos;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        contactanos = await http.GetFromJsonAsync<IList<Contactano>>(api);
+    }
+}
+

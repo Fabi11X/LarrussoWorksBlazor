@@ -1,0 +1,95 @@
+﻿@page "/mensajes"
+
+@using LarrussoWorksBlazor.Data.Models
+@using LarrussoWorksBlazor.Data
+@inject HttpClient http
+@using System.Net.Http
+@using System.Net.Http.Json
+
+<div class="container">
+    <div class="container">
+        <br />
+        <div class="title">
+            <div class="title_content">
+                <h1>Mensajería</h1>
+            </div>
+            <!--<div class="title__btn">
+                <a href="/mensajes/add" class="btn btn-success">
+                    <i class="fas fas-plus"></i>
+                    &nbsp;
+                    Agregar
+                </a>
+            </div>-->
+        </div>
+    </div>
+
+    @if (mensajes == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Empleo</th>
+                    <th>Mensaje</th>
+                    <th>Opciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var mensaje in mensajes)
+                {
+                    <tr>
+                        <td>@mensaje.GetNameUsuario(usuarios)</td>
+                        <td>@mensaje.GetNameEmpleo(empleos)</td>
+                        <td>@mensaje.BuzonMensaje</td>
+                        <td>
+                            
+
+                            <span class="icon">
+                                <a href="/mensajes/delete/@mensaje.IdMensaje" class="btn btn-danger" title="Eliminar">Eliminar</a>
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+
+@code{
+
+    private Autenticacion atn = new Autenticacion();
+
+
+    private readonly string api = "api/Mensaje/ObtenerMensajes";
+    private IEnumerable<Mensaje> mensajes;
+
+
+    //Jalar Nombres
+    private readonly string apiUsu = "api/Usuario";
+    private IList<Usuario> usuarios;
+
+    private readonly string apiEmp = "api/Empleo";
+    private IList<Empleo> empleos;
+
+    protected override async Task OnInitializedAsync()
+    {
+        atn = IsDataNull.CreateInstanceIfIsNull<Autenticacion>(await LocalStorage.GetValue<Autenticacion>(ValuesKeys.Persona));
+
+
+        //Jalar los Nombres
+        var responseUsuarios = await http.GetFromJsonAsync<IList<Usuario>>(apiUsu);
+        var responseEmpleo = await http.GetFromJsonAsync<IList<Empleo>>(apiEmp);
+
+        usuarios = responseUsuarios;
+        empleos = responseEmpleo;
+
+
+        mensajes = await http.GetFromJsonAsync<IList<Mensaje>>(api);
+        mensajes = mensajes.Where(msg => msg.GetEmpresaId(empleos) == atn.id);
+    }
+}

@@ -1,0 +1,170 @@
+﻿@page "/usuarios"
+
+@using LarrussoWorksBlazor.Data.Models
+@using LarrussoWorksBlazor.Data
+@inject HttpClient http
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Text.Json;
+
+<div class="container">
+    <br />
+    <div class="title">
+        <div class="title_content">
+            <h1>Usuarios</h1>
+        </div>
+        <div class="title__btn">
+            @if (atn.Nivel == "Administrador")
+             {
+                <a href="/usuarios/add" class="btn btn-success">
+                    <i class="fas fas-plus"></i>
+                    &nbsp;
+                    Agregar
+                </a>
+             }
+
+        </div>
+    </div>
+
+    <p>Tabla de los Usuarios</p>
+
+    @if (usuarios == null)
+    {
+        <p><em>Cargando...</em></p> }
+    else
+    {
+        <div class="form-inline">
+            <label class="sr-only" for="nombre-filtro">Filtrar</label>
+            <input type="text" class="form-control mb-2 mr-sm-2"
+                   @bind="nombreUsuarioFiltro" placeholder="Filtrar por Nombre" />
+            <button type="button" class="btn btn-primary mr-sm-2 mb-2"
+                    @onclick="Buscar">
+                Filtrar
+            </button>
+            <button type="button" class="btn btn-danger mb-2"
+                    @onclick="Limpiar">
+                Limpiar
+            </button>
+        </div>
+
+        <div class="row">
+            @foreach (var usuario in usuarios)
+            {
+                <div class="col-md-4">
+                    <div class="card text-white bg-dark mb-3 text-center" style="margin: 10px;">
+                        <div class="card-header">
+                            <strong>@usuario.NivelUsuario: @usuario.NombreUsuario @usuario.ApellidoUsuario</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="col">
+                                <img src="/img/UsuariosImg/@usuario.FotografiaUsuario" width="150" />
+                            </div>
+                            <div class="col">
+                                <span>Correo: @usuario.CorreoUsuario</span>
+                            </div>
+                            <div class="col">
+                                <span>Teléfono: @usuario.TelefonoUsuario</span>
+                            </div>
+                        </div>
+                        <div class="card-footer text-center">
+                            
+                            @if (atn.Nivel == "Usuario")
+                            {
+
+                                <span class="text-center">
+                                    <a href="/usuarios/detalles/@usuario.IdUsuario" class="btn btn-info" title="Detalles">Detalles</a>
+                                </span>
+                            }
+                            else if (atn.Nivel == "Empresa")
+                            {
+                                <span class="text-center">
+                                    <a href="/usuarios/detalles/@usuario.IdUsuario" class="btn btn-info" title="Detalles">Detalles</a>
+                                </span>
+
+                                <span class="icon">
+                                    <a href="/mensajesausuarios/@usuario.IdUsuario" class="btn btn-success" title="Mensaje">Enviar Mensaje</a>
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="icon">
+                                    <a href="/usuarios/delete/@usuario.IdUsuario" class="btn btn-danger" title="Eliminar">Eliminar</a>
+                                </span>
+
+                                <span class="text-center">
+                                    <a href="/usuarios/detalles/@usuario.IdUsuario" class="btn btn-info" title="Detalles">Detalles</a>
+                                </span>
+                            }
+
+                        </div>
+                    </div>
+                </div>
+             }
+        </div>
+
+        <Paginacion PaginasTotales="paginasTotales" PaginaActual="paginaActual"
+                    PaginaSeleccionada="PaginaSeleccionada">
+        </Paginacion>
+
+    }
+
+</div>
+
+    @code {
+        //Paginacion Usuarios
+        private int paginasTotales;
+        private int paginaActual;
+        private Autenticacion atn = new Autenticacion();
+        //Busqueda Usuarios
+        private string nombreUsuarioFiltro = string.Empty;
+
+        private readonly string api = "api/Usuario/ObtenerUsuarioII";
+        private IList<Usuario> usuarios;
+
+        protected override async Task OnInitializedAsync()
+        {
+
+            await ObtenerUsuario();
+            atn = IsDataNull.CreateInstanceIfIsNull<Autenticacion>(await LocalStorage.GetValue<Autenticacion>(ValuesKeys.Persona));
+        }
+
+        private async Task PaginaSeleccionada(int pagina)
+        {
+            paginaActual = pagina;
+            await ObtenerUsuario(pagina);
+        }
+
+        private async Task Buscar()
+        {
+            paginaActual = 1;
+            await ObtenerUsuario();
+        }
+
+        private async Task Limpiar()
+        {
+            nombreUsuarioFiltro = string.Empty;
+            paginaActual = 1;
+            await ObtenerUsuario();
+        }
+
+        async Task ObtenerUsuario(int pagina = 1, int cantidadRegistroAMostrar = 6)
+        {
+            var httpResponse = await http.GetAsync($"{api}?pagina={pagina}&CantidadAMostrar={cantidadRegistroAMostrar}&nombre={nombreUsuarioFiltro}");
+
+            if (httpResponse.IsSuccessStatusCode)
+            {
+                paginasTotales = int.Parse(httpResponse.Headers.GetValues("totalPaginas").FirstOrDefault());
+
+                var responseString = await httpResponse.Content.ReadAsStringAsync();
+
+                usuarios = JsonSerializer.Deserialize<IList<Usuario>>(responseString, new JsonSerializerOptions()
+                { PropertyNameCaseInsensitive = true });
+            }
+
+            else
+            {
+            }
+        }
+    }
+
+

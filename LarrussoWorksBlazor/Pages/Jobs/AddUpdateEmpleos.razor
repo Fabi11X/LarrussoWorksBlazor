@@ -1,0 +1,219 @@
+﻿@page "/empleos/add"
+@page "/empleos/update/{id:int}"
+
+@using LarrussoWorksBlazor.Data.Models
+@using LarrussoWorksBlazor.Data
+@using System.Net.Http
+@using System.Net.Http.Json
+@inject HttpClient http
+@inject NavigationManager NavigationManager
+
+
+@using Microsoft.AspNetCore.Hosting
+@inject IWebHostEnvironment env
+@using System.IO
+
+
+<div class="container">
+
+    <div class="text-center">
+        <h1>@(estaActualizado ? $"Editar Empleo [Id: {empleo.IdEmpleo}]" : "Agregar Empleo")</h1>
+    </div>
+
+    <EditForm Model="@empleo">
+        <form class="container-border" @onsubmit="Guardar">
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="col-form-label" for="nombreempleo">Nombre</label>
+                    <input required  placeholder="Desarrollo de software" class="form-control" @bind-value="@empleo.NombreEmpleo" id="nombreempleo" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="col-form-label" for="descripcionempleo">Descripción</label>
+                    <input required  placeholder="Descripción de empleo" class="form-control" @bind-value="@empleo.DescripcionEmpleo" id="descripcionempleo" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="col-form-label" for="requisitosempleo">Requisitos</label>
+                    <input required  placeholder="Requisitos de empleo" class="form-control" @bind-value="@empleo.RequisitosEmpleo" id="requisitosempleo" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="col-form-label" for="prestacionesempleo">Prestaciones</label>
+                    <input required placeholder="Prestaciones de empleo" class="form-control" @bind-value="@empleo.PrestacionesEmpleo" id="prestacionesempleo" />
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-6">
+                    <label class="col-form-label" for="ubicacionempleo">Ubicación</label>
+                    <input required placeholder="Calle 109A #123 x 109 y 111" class="form-control" @bind-value="@empleo.UbicacionEmpleo" id="ubicacionempleo" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="col-form-label" for="idcategoria">Categoria</label>
+                    <InputSelect class="form-control" @bind-Value="@empleo.IdCategoria" id="idcategoria">
+                        <option value="-1" disabled>Selecciona una Categoria</option>
+                        @if (cargando)
+                        {
+                            <option value="0" disabled>Cargando...</option>
+                        }
+                        else if (categorias != null)
+                        {
+                            @foreach (var categoria in categorias)
+                            {
+                                <option value="@categoria.IdCategoria">@categoria.NombreCategoria</option>
+                            }
+                        }
+                    </InputSelect>
+                </div>
+
+
+
+            </div>
+
+            <div class="row">
+                
+                <div class="col-md-12">
+                    <label class="col-form-label" for="idempresa">Empresa</label>
+                    <InputSelect class="form-control" @bind-Value="@empleo.IdEmpresa" id="idempresa">
+                        <option value="-1" disabled>Selecciona una Empresa</option>
+                        @if (cargando)
+                        {
+                            <option value="0" disabled>Cargando...</option>
+                        }
+                        else if (empresas != null)
+                        {
+                            @foreach (var empresa in empresas)
+                            {
+                                <option value="@empresa.IdEmpresa">@empresa.NombreEmpresa</option>
+                            }
+                        }
+                    </InputSelect>
+                </div>
+
+                <div class="col-md-12">
+                    <h3>@mensaje</h3>
+                    <label class="col-form-label" for="imagenempleo">Imagen</label>
+                    <InputFile OnChange="SubirImagen" multiple class="form-control" @bind-Value="@empleo.ImagenEmpleo" id="imagenempleo"></InputFile>
+                </div>
+            </div>
+
+            <br />
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Guardar</button>
+                <a class="btn btn-danger" href="/Empleos">Cancelar</a>
+            </div>
+           
+        </form>
+    </EditForm>
+</div>
+
+    @code{
+        [Parameter]
+
+        public int id { get; set; }
+
+        public bool estaActualizado { get; set; } = false;
+
+        string mensaje = "Aun no ha seleccionado algun archivo";
+
+        IReadOnlyList<IBrowserFile> archivoSeleccionado;
+
+        bool cargando = true;
+
+        IList<Categoria> categorias;
+
+        IList<Empresa> empresas;
+
+        Empleo empleo = new Empleo();
+
+        protected override async Task OnInitializedAsync()
+        {
+            categorias = await http.GetFromJsonAsync<IList<Categoria>>("api/Categoria/ObtenerCategoria");
+
+            empresas = await http.GetFromJsonAsync<IList<Empresa>>("api/Empresa/ObtenerEmpresa");
+
+            estaActualizado = id != 0;
+            if (estaActualizado)
+            {
+                var response = await http.GetFromJsonAsync<Empleo>($"api/Empleo/{id}");
+                if (response != null)
+                {
+                    empleo = response;
+                }
+            }
+            cargando = false;
+        }
+
+        private void SubirImagen(InputFileChangeEventArgs im)
+        {
+            archivoSeleccionado = im.GetMultipleFiles();
+            mensaje = $"{archivoSeleccionado.Count} archivo seleccionado";
+            this.StateHasChanged();
+        }
+
+        protected async Task Guardar()
+        {
+            foreach (var archivo in archivoSeleccionado)
+            {
+                var nombreImagen = empleo.ImagenEmpleo;
+                Stream stream = archivo.OpenReadStream();
+
+                var carpeta = $"{env.WebRootPath}\\img\\EmpleosImg\\{archivo.Name}";
+
+                if (estaActualizado)
+                {
+                    var carpetaAct = $"{env.WebRootPath}\\img\\EmpleosImg\\";
+                    string rutaArchivo = Path.Combine(carpetaAct, nombreImagen);
+                    FileInfo infoArchivo = new FileInfo(rutaArchivo);
+
+                    if (infoArchivo.Exists)
+                    {
+                        infoArchivo.Delete();
+                    }
+
+                }
+
+                empleo.ImagenEmpleo = archivo.Name;
+                FileStream fileStream = File.Create(carpeta);
+                await stream.CopyToAsync(fileStream);
+                stream.Close();
+                fileStream.Close();
+            }
+
+            mensaje = $"{archivoSeleccionado.Count} archivo guardado";
+            this.StateHasChanged();
+
+            HttpResponseMessage response;
+            if (estaActualizado)
+            {
+                response = await http.PutAsJsonAsync<Empleo>($"api/Empleo/ActualizarEmpleo/{id}", empleo!);
+            }
+            else
+            {
+                response = await http.PostAsJsonAsync<Empleo>($"api/Empleo/CrearEmpleo", empleo!);
+                if (response.IsSuccessStatusCode)
+                {
+                    await agregarEmpleoMessage();
+                    await Task.Delay(2500);
+                    NavigationManager.NavigateTo("/empleos");
+                }
+            }
+            Empleo guardado = response.Content.ReadFromJsonAsync<Empleo>().Result;
+            NavigationManager.NavigateTo("/empleos");
+        }
+
+        protected async Task agregarEmpleoMessage()
+        {
+            await js.InvokeVoidAsync("agregarEmpleo");
+        }
+       
+
+
+    }
+

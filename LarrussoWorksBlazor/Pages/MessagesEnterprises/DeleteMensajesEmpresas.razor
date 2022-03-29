@@ -1,0 +1,36 @@
+﻿@page "/mensajesempresa/delete/{id:int}"
+
+@using LarrussoWorksBlazor.Data.Models
+@using LarrussoWorksBlazor.Data
+@using System.Net.Http
+@using System.Net.Http.Json
+@inject HttpClient http
+@inject NavigationManager NavigationManager;
+
+<h1>¿Está seguro que desea borrar el Mensaje?</h1>
+
+<button class="btn btn-outline-success" @onclick="ConfirmarEliminacion">Confirmar</button>
+<a class="btn btn-outline-danger" href="/mensajesempresa">Cancelar</a>
+
+@code
+{
+    [Parameter]
+
+    public int id { get; set; }
+
+    MensajesEmpresa mensajesempresa;
+
+    protected override async Task OnInitializedAsync()
+    {
+        mensajesempresa = await http.GetFromJsonAsync<MensajesEmpresa>($"api/MensajeEmpresa/{id}");
+    }
+
+    protected async Task ConfirmarEliminacion()
+    {
+        var response = await http.DeleteAsync($"api/MensajeEmpresa/EliminarMensajesEmpresa/{id}");
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/mensajesempresa");
+        }
+    }
+}

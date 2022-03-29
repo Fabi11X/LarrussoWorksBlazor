@@ -1,0 +1,85 @@
+﻿@page "/contactanos/add"
+@page "/contactanos/update/{id:int}"
+
+@using LarrussoWorksBlazor.Data.Models
+@using LarrussoWorksBlazor.Data
+@inject HttpClient http
+@using System.Net.Http
+@using System.Net.Http.Json
+@inject NavigationManager NavigationManager
+
+
+<div class="container">
+    <div class="text-center">
+        <h1>@(estaActualizado ? $"Editar Contactanos [Id: {contactanos.IdContacto}]" : "Agregar Contactanos")</h1>
+    </div>
+
+    <EditForm Model="@contactanos">
+        <form class="container-border" @onsubmit="Guardar">
+            <div class="mb-2">
+                <label class="col-form-label" for="correocontacto">Correo</label>
+                <input required class="form-control" @bind-value="@contactanos.CorreoContacto" id="correocontacto" />
+            </div>
+
+            <div class="mb-2">
+                <label class="col-form-label" for="asuntocontacto">Asunto</label>
+                <input required class="form-control" @bind-value="@contactanos.AsuntoContacto" id="asuntocontacto" />
+            </div>
+
+            <div class="mb-2">
+                <label class="col-form-label" for="mensajecontacto">Mensaje</label>
+                <input required class="form-control" @bind-value="@contactanos.MensajeContacto" id="mensajecontacto" />
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Guardar</button>
+                <a class="btn btn-danger" href="/Contactanos">Cancelar</a>
+            </div>
+
+        </form>
+    </EditForm>
+
+</div>
+
+
+@code{
+    [Parameter]
+
+    public int id { get; set; }
+
+    public bool estaActualizado { get; set; } = false;
+
+    bool cargando = true;
+
+    Contactano contactanos = new Contactano();
+
+    protected override async Task OnInitializedAsync()
+    {
+        estaActualizado = id != 0;
+        if (estaActualizado)
+        {
+            var response = await http.GetFromJsonAsync<Contactano>($"api/Contacto/{id}");
+            if (response != null)
+            {
+                contactanos = response;
+            }
+        }
+        cargando = false;
+    }
+
+    protected async Task Guardar()
+    {
+        HttpResponseMessage response;
+        if (estaActualizado)
+        {
+            response = await http.PutAsJsonAsync<Contactano>($"api/Contacto/ActualizarContactanos/{id}", contactanos!);
+        }
+        else
+        {
+            response = await http.PostAsJsonAsync<Contactano>($"api/Contacto/CrearContactanos", contactanos!);
+        }
+        Contactano guardado = response.Content.ReadFromJsonAsync<Contactano>().Result;
+        NavigationManager.NavigateTo("/contactanos");
+    }
+
+}

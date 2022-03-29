@@ -1,0 +1,139 @@
+﻿@page "/administradores"
+
+@using LarrussoWorksBlazor.Data.Models
+@using LarrussoWorksBlazor.Data
+@inject HttpClient http
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Text.Json
+
+<div class="container">
+    <br />
+    <div class="title">
+        <div class="title_content">
+            <h1>Administradores</h1>
+        </div>
+        <div class="title__btn">
+            <a href="/administradores/add" class="btn btn-success">
+                <i class="fas fas-plus"></i>
+                &nbsp;
+                Agregar
+            </a>
+        </div>
+    </div>
+
+    <p>Tabla de los Administradores</p>
+
+    @if (administradores == null)
+    {
+        <p><em>Cargando...</em></p> }
+    else
+    {
+        <div class="form-inline">
+            <label class="sr-only" for="nombre-filtro">Buscar</label>
+            <input type="text" class="form-control mb-2 mr-sm-2"
+                   @bind="nombreAdminFiltro" placeholder="Filtrar por Nombre" />
+            <button type="button" class="btn btn-primary mr-sm-2 mb-2"
+                    @onclick="Buscar">
+                Filtrar
+            </button>
+            <button type="button" class="btn btn-danger mb-2"
+                    @onclick="Limpiar">
+                Limpiar
+            </button>
+
+        </div>
+        <div class="row">
+            @foreach (var administrador in administradores)
+            {
+                <div class="col-md-4">
+                    <div class="card text-white bg-dark mb-3 text-center" style="margin: 10px;">
+                        <div class="card-header">
+                            <strong>@administrador.NivelAdmin: @administrador.NombreAdmin @administrador.ApellidoAdmin</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="col">
+                                <img src="/img/AdministradorsImg/@administrador.FotografiaAdmin" width="150" />
+                            </div>
+                            <div class="col">
+                                <span>Correo: @administrador.CorreoAdmin</span>
+                            </div>
+                            <div class="col">
+                                <span>Teléfono: @administrador.TelefonoAdmin</span>
+                            </div>
+                        </div>
+                        <div class="card-footer text-center">
+                            <span class="text-center">
+                                <a href="/administradores/detalles/@administrador.IdAdmin" class="btn btn-info" title="Detalles">Detalles</a>
+                            </span>
+                            <span class="text-center">
+                                <a href="/administradores/delete/@administrador.IdAdmin" class="btn btn-danger" title="Eliminar">Eliminar</a>
+                            </span>
+                        </div>
+                    </div>
+
+                </div>}
+        </div>
+        <Paginacion PaginasTotales="paginasTotales" PaginaActual="paginaActual"
+                    PaginaSeleccionada="PaginaSeleccionada">
+        </Paginacion>
+    }
+</div>
+    @code { //Paginacion Admins
+        private int paginasTotales;
+        private int paginaActual;
+
+        //Busqueda Admins
+        private string nombreAdminFiltro = string.Empty;
+
+
+        private readonly string api = "api/Administrador/ObtenerAdminII";
+        private IList<Administrador> administradores;
+
+
+
+        protected override async Task OnInitializedAsync()
+        {
+            await ObtenerAdmin();
+            //administradores = await http.GetFromJsonAsync<IList<Administrador>>(api);
+        }
+
+        private async Task PaginaSeleccionada(int pagina)
+        {
+            paginaActual = pagina;
+            await ObtenerAdmin(pagina);
+        }
+
+        private async Task Buscar()
+        {
+            paginaActual = 1;
+            await ObtenerAdmin();
+        }
+
+        private async Task Limpiar()
+        {
+            nombreAdminFiltro = string.Empty;
+            paginaActual = 1;
+            await ObtenerAdmin();
+        }
+
+        async Task ObtenerAdmin(int pagina = 1, int cantidadRegistroAMostrar = 6)
+        {
+            var httpResponse = await http.GetAsync($"{api}?pagina={pagina}&CantidadAMostrar={cantidadRegistroAMostrar}&nombre={nombreAdminFiltro}");
+
+            if (httpResponse.IsSuccessStatusCode)
+            {
+                paginasTotales = int.Parse(httpResponse.Headers.GetValues("totalPaginas").FirstOrDefault());
+
+                var responseString = await httpResponse.Content.ReadAsStringAsync();
+
+                administradores = JsonSerializer.Deserialize<IList<Administrador>>(responseString, new JsonSerializerOptions()
+                { PropertyNameCaseInsensitive = true });
+            }
+
+            else
+            {
+            }
+        }
+    }
+

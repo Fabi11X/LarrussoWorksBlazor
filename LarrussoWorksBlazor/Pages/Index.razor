@@ -1,0 +1,335 @@
+﻿@page "/"
+@using LarrussoWorksBlazor.Data.Models
+@inject HttpClient http
+@inject NavigationManager NavigationMnager
+@using System.Net.Http
+@using System.Net.Http.Json
+@inject IJSRuntime js
+<main class="">
+    <!-- Button trigger modal -->
+
+    <div class="jumbotron2 navbar-expand-lg text-white jumbotron-image shadow">
+        <div class="container animate_animated animate_backInDown">
+            <div class="Medio">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <h1 class="larusso"><i class="fa-solid fa-briefcase iconjobfirst"></i>Larusso Works</h1>
+                        <h1 class="Inovation">
+                            Innovación en cualquier <br />
+                            lugar estés donde estés
+                        </h1>
+                        <p class="Titledown">No lo olvides: La mejor manera de predecir el futuro es creandolo...</p>
+
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    <br />
+    <br />
+    <div class="container">
+        <div id="seccion" class="section-title">
+            <h2>LARUSSO WORKS</h2>
+            <p>Buscamos personas que les apasione cambiar el mundo a través del trabajo. "El talento gana juegos, pero el trabajo en equipo y la inteligencia ganan campeonatos". Michael Jordan.</p>
+
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <h3 class="h3principal">Éstas y miles de empresas más tienen las mejores vacantes para ti</h3>
+                <p class="fst-italic">El aprendizaje y crecimiento continuo son claves en Larusso Works, por eso nuestros planes de carreras están pensados para que cada colaborador lo logre.</p>
+                <ul>
+                    <li>
+                        <i class="fa-solid fa-circle-check check1"></i>
+                        Descubre más sobre los empleos y contáctate con uno de tu interés
+                    </li>
+
+
+                    <li>
+                        <i class="fa-solid fa-circle-check check1"></i>
+                        Conoce los distintos aspectos que requieren estas empresas para poder unirte a ellos.
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-circle-check check1"></i>
+                        Descubre como es trabajar con las empresas
+                    </li>
+                </ul>
+
+            </div>
+            <div class="col-md-6">
+                <img class="img-fluid imgprincipal" src="https://bootstrapmade.com/demo/templates/Scaffold/assets/img/hero-img.png" />
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <br />
+    <br />
+    <div class="jumbotron jumbotronestadisticas">
+        <br />
+
+        <div class="container">
+            <div class="row align-items-start numeros">
+                <div class="col">
+                    +200
+                    <div class="container">
+                        <h6>Trabajos</h6>
+                    </div>
+
+                </div>
+
+                <div class="col">
+                    +1560
+                    <div class="container">
+                        <h6>Usuarios</h6>
+                    </div>
+                </div>
+                <div class="col">
+                    +120
+                    <div class="container">
+                        <h6>Empresas</h6>
+                    </div>
+
+                </div>
+                <div class="col">
+                    +1200
+                    <div class="container">
+                        <h6>Usuarios ya laborando</h6>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <br />
+
+    <br />
+    <br />
+    <div class="container">
+        <div id="seccion2" class="section-title">
+            <h2>Servicios</h2>
+            <p>Larusso Works es la página web de empleo con más de 25,000 mil usuarios únicos mensuales. Larusso works se esfuerza por dar prioridad a los candidatos, ofreciéndoles acceso gratuito al sitio para que busquen empleos e investiguen a las empresas. Conectamos a millones de personas con nuevas oportunidades cada día.</p>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <img class="img-fluid" src="https://bootstrapmade.com/demo/templates/Resi/assets/img/services.png" />
+            </div>
+            <div class="col-md-6">
+                <div class="row row-cols-1 row-cols-md-2 g-4">
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="container">
+                                    <div class="icon">
+                                        <svg class="svg" width="100" height="100" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg"> <path stroke="none" stroke-width="0" fill="#f5f5f5" d="M300,521.0016835830174C376.1290562159157,517.8887921683347,466.0731472004068,529.7835943286574,510.70327084640275,468.03025145048787C554.3714126377745,407.6079735673963,508.03601936045806,328.9844924480964,491.2728898941984,256.3432110539036C474.5976632858925,184.082847569629,479.9380746630129,96.60480741107993,416.23090153303,58.64404602377083C348.86323505073057,18.502131276798302,261.93793281208167,40.57373210992963,193.5410806939664,78.93577620505333C130.42746243093433,114.334589627462,98.30271207620316,179.96522072025542,76.75703585869454,249.04625023123273C51.97151888228291,328.5150500222984,13.704378332031375,421.85034740162234,66.52175969318436,486.19268352777647C119.04800174914682,550.1803526380478,217.28368757567262,524.383925680826,300,521.0016835830174"></path> </svg>
+                                        <i class="fa-solid fa-briefcase iconjob"></i>
+                                    </div>
+                                </div>
+                                <h4 class="text-center cardtext1">Todo fluye mejor cuando eres feliz en el trabajo</h4>
+                                <p class="text-center">Tenemos grandes prestaciones y beneficios para que te sientas increíble dentro y fuera del trabajo</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="container">
+                                    <div class="icon">
+                                        <svg class="svg" width="100" height="100" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg"> <path stroke="none" stroke-width="0" fill="#f5f5f5" d="M300,521.0016835830174C376.1290562159157,517.8887921683347,466.0731472004068,529.7835943286574,510.70327084640275,468.03025145048787C554.3714126377745,407.6079735673963,508.03601936045806,328.9844924480964,491.2728898941984,256.3432110539036C474.5976632858925,184.082847569629,479.9380746630129,96.60480741107993,416.23090153303,58.64404602377083C348.86323505073057,18.502131276798302,261.93793281208167,40.57373210992963,193.5410806939664,78.93577620505333C130.42746243093433,114.334589627462,98.30271207620316,179.96522072025542,76.75703585869454,249.04625023123273C51.97151888228291,328.5150500222984,13.704378332031375,421.85034740162234,66.52175969318436,486.19268352777647C119.04800174914682,550.1803526380478,217.28368757567262,524.383925680826,300,521.0016835830174"></path> </svg>
+                                        <i class="fa-solid fa-chart-line iconjob2"></i>
+                                    </div>
+                                </div>
+                                <h4 class="text-center cardtext1">Más de 25 años esforzándonos todos los días</h4>
+                                <p class="text-center">Para conectar a los candidatos con el trabajo y ayudarlos a lograr lo que desean en su vida.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="container">
+                                    <div class="icon">
+                                        <svg class="svg" width="100" height="100" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg"> <path stroke="none" stroke-width="0" fill="#f5f5f5" d="M300,521.0016835830174C376.1290562159157,517.8887921683347,466.0731472004068,529.7835943286574,510.70327084640275,468.03025145048787C554.3714126377745,407.6079735673963,508.03601936045806,328.9844924480964,491.2728898941984,256.3432110539036C474.5976632858925,184.082847569629,479.9380746630129,96.60480741107993,416.23090153303,58.64404602377083C348.86323505073057,18.502131276798302,261.93793281208167,40.57373210992963,193.5410806939664,78.93577620505333C130.42746243093433,114.334589627462,98.30271207620316,179.96522072025542,76.75703585869454,249.04625023123273C51.97151888228291,328.5150500222984,13.704378332031375,421.85034740162234,66.52175969318436,486.19268352777647C119.04800174914682,550.1803526380478,217.28368757567262,524.383925680826,300,521.0016835830174"></path> </svg>
+                                        <i class="fa-solid fa-circle-user iconjob3"></i>
+                                    </div>
+                                </div>
+                                <h4 class="text-center cardtext1">Nuestra gente</h4>
+                                <p class="text-center">En larusso works nuestra misión es ayudar a las personas a conseguir empleo.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="container">
+                                    <div class="icon">
+                                        <svg class="svg" width="100" height="100" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg"> <path stroke="none" stroke-width="0" fill="#f5f5f5" d="M300,521.0016835830174C376.1290562159157,517.8887921683347,466.0731472004068,529.7835943286574,510.70327084640275,468.03025145048787C554.3714126377745,407.6079735673963,508.03601936045806,328.9844924480964,491.2728898941984,256.3432110539036C474.5976632858925,184.082847569629,479.9380746630129,96.60480741107993,416.23090153303,58.64404602377083C348.86323505073057,18.502131276798302,261.93793281208167,40.57373210992963,193.5410806939664,78.93577620505333C130.42746243093433,114.334589627462,98.30271207620316,179.96522072025542,76.75703585869454,249.04625023123273C51.97151888228291,328.5150500222984,13.704378332031375,421.85034740162234,66.52175969318436,486.19268352777647C119.04800174914682,550.1803526380478,217.28368757567262,524.383925680826,300,521.0016835830174"></path> </svg>
+                                        <i class="fa-solid fa-address-book iconjob4"></i>
+                                    </div>
+                                </div>
+                                <h4 class="text-center cardtext1">Nos preocupamos por ti</h4>
+                                <p class="text-center">Larusso Works se esfuerza por dar prioridad a los candidatos, ofreciéndoles acceso gratuito al sitio para que busquen empleos</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <br />
+    <br />
+    <div class="jumbotron jumbotronimg">
+        <div class="container content-space-t-3 content-space-t-lg-5">
+            <br />
+            <br />
+            <br />
+            <div class="w-lg-75 text-center mx-lg-auto">
+                <!-- Heading -->
+                <div class="mb-5 mb-md-10">
+                    <h1 class="display-4 equipoglobal">Somos un equipo <span class="textglobal">global</span> </h1>
+                    <p class="lead">
+                        Somos una empresa consolidada en el mercado a nivel local, dedicada a proveer soluciones innovadoras tanto a empresas como a posibles empleados.
+                        Desde la mejora continua hasta la aplicación de procesos. Con mas de 200 empleados laborando, en mas de 10 ciudades con oficinas y con las que damos
+                        servicios, con mas de 1000 usuarios y con más de 50 empresas registradas.
+                    </p>
+                </div>
+                <!-- End Heading -->
+            </div>
+
+            <div class="row gx-3">
+                <div class="col mb-3">
+                    <img class="bg-img-start" src="https://cdn.pixabay.com/photo/2015/07/17/22/43/student-849825_960_720.jpg" style="height: 15rem;" />
+                </div>
+                <!-- End Col -->
+
+                <div class="col mb-3">
+                    <img class="bg-img-start" src="https://cdn.pixabay.com/photo/2015/01/08/18/11/laptops-593296_960_720.jpg" style="height: 15rem;" />
+                </div>
+
+                <div class="col mb-3">
+                    <img class="bg-img-start" src="https://cdn.pixabay.com/photo/2015/01/09/11/09/meeting-594091_960_720.jpg" style="height: 15rem;" />
+                </div>
+                <!-- End Col -->
+            </div>
+            <!-- End Row -->
+        </div>
+        <!-- Vertically centered modal -->
+    </div>
+    <!-- /.container -->
+    <br />
+    <br />
+    <br />
+
+    <div class="container">
+        <div class="jumbotron">
+            <div class="row">
+                <div class="col-md-6">
+                    <h2 class="cuartoespacio">
+                        "No hay problema que no podamos resolver juntos, y muy pocos que podamos resolver por nosotros mismos." <br>
+                        <span class="textjhonson">Lyndond Johnson</span>
+                    </h2>
+                    <p class="fs-lg text-gray-700 mb-6 parrafocuarto">
+                        Fomentar la diversidad e inclusión requiere una participación
+                        activa en entornos como la vida familiar, la educación, el trabajo y
+                        y en general en todos los  procesos sociales, culturales y en las comunidades.
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <img class="img-fluid mb-6 mb-md-0" src="/img/hands-1917895_960_720.webp" />
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <br />
+    <div class="jumbotron jumbotroncontact">
+        <br />
+        <br />
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-10">
+                    <div class="row justify-content-center">
+                        <div class="col-md-6">
+                            <h3 class="heading mb-4 Contactanosauto">CONTÁCTANOS</h3>
+                            <p>Envianos un mensaje para cualquier duda, aclaracion o sugerencia. Estamos para servirle</p>
+                            <p><img src="/img/hand-1076597_960_720.jpg" alt="Image" class="img-fluid"></p>
+                        </div>
+
+                        <div class="col-md-6">
+                            <EditForm Model="@contactanos">
+                                <br />
+                                <br />
+                                <br />
+
+                                <form @onsubmit="Guardar" class="mb-5" id="contactForm" name="contactForm">
+                                    <div class="row">
+                                        <div class="col-md-12 form-group">
+                                            <input required type="text" @bind-value="contactanos.CorreoContacto" class="form-control error" name="email" id="email" placeholder="Correo electronico" aria-required="true" aria-invalid="true">
+                                        </div>
+                                    </div>
+                                    <br />
+                                    <br />
+                                    <div class="row">
+                                        <div class="col-md-12 form-group">
+                                            <input required type="text" @bind-value="contactanos.AsuntoContacto" class="form-control" name="subject" id="subject" placeholder="Asunto">
+                                        </div>
+                                    </div>
+                                    <br />
+                                    <br />
+                                    <div class="row">
+                                        <div class="col-md-12 form-group">
+                                            <input required @bind-value="contactanos.MensajeContacto" type="text" class="form-control" name="message" id="message" placeholder="Escribe tu mensaje" />
+                                        </div>
+                                    </div>
+                                    <br />
+                                    <div class="row">
+
+                                        <div class="col-12">
+                                            <button type="submit" class="btn btn-success rounded-0 py-2 px-4">Enviar</button>
+
+                                        </div>
+                                    </div>
+                                </form>
+                            </EditForm>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+@code{ string mensaje = "";
+
+            Contactano contactanos = new Contactano();
+
+            protected async Task Guardar()
+            {
+                HttpResponseMessage response;
+
+
+                response = await http.PostAsJsonAsync<Contactano>($"api/Contacto/CrearContactanos", contactanos!);
+                if (response.IsSuccessStatusCode)
+                {
+                    await Mensjaeenviado();
+                    await Task.Delay(2500);
+                    NavigationManager.NavigateTo("/", forceLoad: true);
+                }
+                Contactano guardado = response.Content.ReadFromJsonAsync<Contactano>().Result;
+
+
+
+
+            }
+
+            protected async Task Mensjaeenviado()
+            {
+                await js.InvokeVoidAsync("mensajeenviado");
+            } }

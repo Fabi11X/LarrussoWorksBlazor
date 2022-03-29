@@ -1,0 +1,97 @@
+﻿@page "/categorias/add"
+@page "/categorias/update/{id:int}"
+
+@using LarrussoWorksBlazor.Data.Models
+@using LarrussoWorksBlazor.Data
+@using System.Net.Http
+@using System.Net.Http.Json
+@using Microsoft.Extensions.Logging
+@inject HttpClient http
+@inject NavigationManager NavigationManager
+@inject ILogger<AddUpdateCategorias> Logger
+
+<div class="container">
+    <div class="text-center">
+        <h1>@(estaActualizado ? $"Editar Categoria [Id: {categoria.IdCategoria}]" : "Agregar Categoria")</h1>
+    </div>
+
+
+    <EditForm Model="@categoria" OnValidSubmit="@HandleValidSubmit">
+        <form class="container-border" @onsubmit="Guardar">
+            <div class="mb-2">
+                <label class="col-form-label" for="nombrecategoria">Nombre de la Categoría</label>
+                <input class="form-control" required @bind-value="@categoria.NombreCategoria" id="nombrecategoria" />
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Guardar</button>
+                <a class="btn btn-danger" href="/Categorias">Cancelar</a>
+            </div>
+
+        </form>
+    </EditForm>
+
+</div>
+
+
+@code{
+    [Parameter]
+
+    public int id { get; set; }
+
+    public bool estaActualizado { get; set; } = false;
+
+    bool cargando = true;
+
+    Categoria categoria = new Categoria();
+
+    private void HandleValidSubmit()
+    {
+        Logger.LogInformation("HandleValidSubmit called");
+
+        // Process the valid form
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        estaActualizado = id != 0;
+        if (estaActualizado)
+        {
+            var response = await http.GetFromJsonAsync<Categoria>($"api/Categoria/{id}");
+            if (response != null)
+            {
+                categoria = response;
+            }
+        }
+        cargando = false;
+    }
+
+    protected async Task Guardar()
+    {
+        HttpResponseMessage response;
+        if (estaActualizado)
+        {
+            response = await http.PutAsJsonAsync<Categoria>($"api/Categoria/ActualizarCategoria/{id}", categoria!);
+        }
+        else
+        {
+            response = await http.PostAsJsonAsync<Categoria>($"api/Categoria/CrearCategoria", categoria!);
+            if (response.IsSuccessStatusCode)
+            {
+                await agregarCategoriaMessage();
+                await Task.Delay(2500);
+                NavigationManager.NavigateTo("/categorias");
+            }
+        }
+        Categoria guardado = response.Content.ReadFromJsonAsync<Categoria>().Result;
+        NavigationManager.NavigateTo("/categorias");
+    }
+
+    protected async Task agregarCategoriaMessage()
+    {
+        await js.InvokeVoidAsync("agregarCategoria");
+    }
+
+
+}
+

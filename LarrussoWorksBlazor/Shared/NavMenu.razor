@@ -1,0 +1,129 @@
+﻿@inject AuthenticationStateProvider AuthenticationStateProvider
+@using LarrussoWorksBlazor.Data
+
+@inject NavigationManager NavigationManager
+@using LarrussoWorksBlazor.Data.Models
+
+<nav class="navbar navbar-expand-lg navbar-dark default-color" style="background-color:black;">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#"><img src="/img/MicrosoftTeams-image.png" style="height: 50px; margin:10px">Larusso Works</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarColor01">
+            <div class="navbar-nav">
+                <a class="nav-link active" aria-current="page" href="#">Inicio</a>
+
+                @if (atn.Nivel == "Usuario")
+                {
+                    <a class="nav-link" href="empleos">Empleos</a>
+                    <a class="nav-link" href="empresas">Empresas</a>
+                    <a class="nav-link" href="mensajesempresa">Buzón</a>
+                    <a class="nav-link" @onclick="cerrarSesion">Cerrar sesión</a>
+                    <a class="nav-link">@atn.Correo</a>
+
+                }
+                else if (atn.Nivel == "Empresa")
+                {
+                    <a class="nav-link" href="usuarios">Usuarios</a>
+                    <a class="nav-link" href="empleos">Empleos</a>
+                    <a class="nav-link" href="empresas">Empresas</a>
+                    <a class="nav-link" href="mensajes">Buzón</a>
+                    <a class="nav-link" @onclick="cerrarSesion">Cerrar sesión</a>
+                    <a class="nav-link">@atn.Correo</a>
+
+                }
+                else if (atn.Nivel == "Administrador")
+                {
+                    <a class="nav-link" href="usuarios">Usuarios</a>
+                    <a class="nav-link" href="empleos">Empleos</a>
+                    <a class="nav-link" href="empresas">Empresas</a>
+                    <a class="nav-link" href="categorias">Categorias</a>
+                    <a class="nav-link" href="contactanos">Contáctanos</a>
+                    <a class="nav-link" href="administradores">Administradores</a>
+                    <a class="nav-link" @onclick="cerrarSesion">Cerrar sesión</a>
+                    <a class="nav-link">@atn.Correo</a>
+
+                }
+                else
+                {
+                    <a class="nav-link" href="login">Iniciar Sesión</a>
+                }
+
+
+
+
+                <!-- Modal -->
+                <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Modal title</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="container">
+                                <form>
+                                    <div class="mb-3">
+                                        <label for="recipient-name" class="col-form-label">Recipient:</label>
+                                        <input type="text" class="form-control" id="recipient-name">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="message-text" class="col-form-label">Message:</label>
+                                        <textarea class="form-control" id="message-text"></textarea>
+                                    </div>
+                                </form>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary">Save changes</button>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</nav>
+
+
+@code {
+    private Autenticacion atn = new Autenticacion();
+
+
+    protected async override Task OnInitializedAsync()
+    {
+
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            atn = IsDataNull.CreateInstanceIfIsNull<Autenticacion>(await LocalStorage.GetValue<Autenticacion>(ValuesKeys.Persona));
+
+            StateHasChanged();
+
+        }
+    }
+
+
+    private void cerrarSesion()
+    {
+        LocalStorage.RemoveItem(ValuesKeys.Persona);
+
+        NavigationManager.NavigateTo("/login", forceLoad: true);
+    }
+
+    private bool collapseNavMenu = true;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

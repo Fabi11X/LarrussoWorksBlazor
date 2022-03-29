@@ -1,0 +1,191 @@
+﻿@page "/empleos"
+
+@using LarrussoWorksBlazor.Data.Models
+@using LarrussoWorksBlazor.Data
+@inject HttpClient http
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Text.Json
+
+<div class="container">
+    <br />
+    <div class="title">
+        <div class="title_content">
+            <h1>Empleos</h1>
+        </div>
+        <div class="title__btn">
+            @if (atn.Nivel == "Usuario")
+            {
+
+            }
+            else
+            {
+                <a href="/empleos/add" class="btn btn-success">
+                    <i class="fas fas-plus"></i>
+                    &nbsp;
+                    Agregar
+                </a>
+            }
+
+
+        </div>
+    </div>
+
+
+    <p>Tabla de los Empleos</p>
+
+    @if (empleos == null)
+    {
+        <p><em>Cargando...</em></p>
+    }
+    else
+    {
+        <div class="form-inline">
+            <label class="sr-only" for="nombre-filtro">Buscar</label>
+            <input type="text" class="form-control mb-2 mr-sm-2"
+               @bind="nombreEmpresaFiltro" placeholder="Filtrar por Nombre" />
+            <button type="button" class="btn btn-primary mr-sm-2 mb-2"
+                @onclick="Buscar">
+                Filtrar
+            </button>
+            <button type="button" class="btn btn-danger mb-2"
+                @onclick="Limpiar">
+                Limpiar
+            </button>
+
+        </div>
+        <div class="row">
+            @foreach (var empleo in empleos)
+            {
+                <div class="col-md-4">
+                    <div class="card text-white bg-dark mb-3 text-center" style="margin: 10px;">
+                        <div class="card-header">
+                            <strong>Empleo: @empleo.NombreEmpleo</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="col">
+                                <img src="/img/EmpleosImg/@empleo.ImagenEmpleo" width="150" />
+                            </div>
+                            <div class="col">
+                                <span>Ubicación: @empleo.UbicacionEmpleo</span>
+                            </div>
+                            <div class="col">
+                                <span>Categoria: @empleo.GetNameCategoria(categorias)</span>
+                            </div>
+                        </div>
+                        <div class="card-footer text-center">
+
+                           @if (atn.Nivel == "Usuario")
+                            {
+
+                                <span class="icon">
+                                    <a href="/empleos/detalles/@empleo.IdEmpleo" class="btn btn-info" title="Detalles">Detalles</a>
+                                </span>
+                                <span class="icon">
+                                    <a href="/mensajesaempresas/@empleo.IdEmpleo" class="btn btn-success" title="Mensaje">Enviar Mensaje</a>
+                                </span>
+                            }
+                            else if (atn.Nivel == "Empresa")
+                            {
+                                <span class="icon">
+                                    <a href="/empleos/detalles/@empleo.IdEmpleo" class="btn btn-info" title="Detalles">Detalles</a>
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="icon">
+                                    <a href="/empleos/delete/@empleo.IdEmpleo" class="btn btn-danger" title="Eliminar">Eliminar</a>
+                                </span>
+                                <span class="icon">
+                                    <a href="/empleos/detalles/@empleo.IdEmpleo" class="btn btn-info" title="Detalles">Detalles</a>
+                                </span>
+                            }
+
+                        </div>
+                    </div>
+
+                </div>
+            }
+        </div>
+    }
+
+    <Paginacion PaginasTotales="paginasTotales" PaginaActual="paginaActual"
+                PaginaSeleccionada="PaginaSeleccionada">
+    </Paginacion>
+
+</div>
+
+@code {
+    private Autenticacion atn = new Autenticacion();
+
+
+    //Paginacion Empleo
+    private int paginasTotales;
+    private int paginaActual;
+
+    //Busqueda Empleo
+    private string nombreEmpresaFiltro = string.Empty;
+
+    private readonly string api = "api/Empleo/ObtenerEmpleoII";
+    private IList<Empleo> empleos;
+
+    private readonly string apiCat = "api/Categoria/ObtenerCategoria";
+    private IList<Categoria> categorias;
+
+    private readonly string apiEmp = "api/Empresa/ObtenerEmpresa";
+    private IList<Empresa> empresas;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ObtenerEmpleo();
+        //empleos = await http.GetFromJsonAsync<IList<Empleo>>(api);
+    }
+
+    private async Task PaginaSeleccionada(int pagina)
+    {
+        paginaActual = pagina;
+        await ObtenerEmpleo(pagina);
+    }
+
+    private async Task Buscar()
+    {
+        paginaActual = 1;
+        await ObtenerEmpleo();
+    }
+
+    private async Task Limpiar()
+    {
+        nombreEmpresaFiltro = string.Empty;
+        paginaActual = 1;
+        await ObtenerEmpleo();
+    }
+
+    async Task ObtenerEmpleo(int pagina = 1, int cantidadRegistroAMostrar = 6)
+    {
+        atn = IsDataNull.CreateInstanceIfIsNull<Autenticacion>(await LocalStorage.GetValue<Autenticacion>(ValuesKeys.Persona));
+        var httpResponse = await http.GetAsync($"{api}?pagina={pagina}&CantidadAMostrar={cantidadRegistroAMostrar}&nombre={nombreEmpresaFiltro}");
+
+        if (httpResponse.IsSuccessStatusCode)
+        {
+
+            paginasTotales = int.Parse(httpResponse.Headers.GetValues("totalPaginas").FirstOrDefault());
+
+            var responseString = await httpResponse.Content.ReadAsStringAsync();
+
+            var responseCategorias = await http.GetFromJsonAsync<IList<Categoria>>(apiCat);
+
+            var responseEmpresa = await http.GetFromJsonAsync<IList<Empresa>>(apiEmp);
+
+            empresas = responseEmpresa;
+            categorias = responseCategorias;
+
+            empleos = JsonSerializer.Deserialize<IList<Empleo>>(responseString, new JsonSerializerOptions()
+                { PropertyNameCaseInsensitive = true });
+        }
+
+        else
+        {
+
+        }
+    } }
+

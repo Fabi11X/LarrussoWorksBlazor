@@ -1,0 +1,215 @@
+﻿@page "/usuarios/add"
+@page "/usuarios/update/{id:int}"
+
+@using LarrussoWorksBlazor.Data.Models
+@using LarrussoWorksBlazor.Data
+@using System.Net.Http
+@using System.Net.Http.Json
+@inject HttpClient http
+@inject NavigationManager NavigationManager
+
+@using Microsoft.AspNetCore.Hosting
+@inject IWebHostEnvironment env
+@using System.IO
+
+<div class="container">
+
+    <div class="text-center">
+        <h1>@(estaActualizado ? $"Editar Usuario [Id: {usuario.IdUsuario}]" : "Agregar Usuario")</h1>
+    </div>
+    
+    <EditForm Model="@usuario">
+        <form class="container-border" @onsubmit="Guardar">
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="col-form-label" for="nombreusuario">Nombre(s)</label>
+                    <input required placeholder="Liza" class="form-control" @bind-value="@usuario.NombreUsuario" id="nombreusuario" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="col-form-label" for="apellidousuario">Apellido(s)</label>
+                    <input required placeholder="Rivero" class="form-control" @bind-value="@usuario.ApellidoUsuario" id="apellidousuario" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="col-form-label" for="sexousuario">Sexo</label>
+                    <InputSelect placeholder="Masculino / Femenino" class="form-control" @bind-Value="@usuario.SexoUsuario" id="sexousuario">
+                        <option select disable value="">Selecciona tu sexo</option>
+                        <option>Masculino</option>
+                        <option>Femenino</option>
+                    </InputSelect>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="col-form-label" for="fechanacusuario">Fecha Nacimiento</label>
+                    <input required placeholder="2002/09/15" class="form-control" @bind-value="@usuario.FechanacUsuario" id="fechanacusuario" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="col-form-label" for="telefonousuario">Teléfono</label>
+                    <input required placeholder="9993826099" class="form-control" @bind-value="@usuario.TelefonoUsuario" id="telefonousuario" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="col-form-label" for="fotografiausuario">Fotografia</label>
+                    <InputFile OnChange="SubirImagen" multiple class="form-control" @bind-Value="@usuario.FotografiaUsuario" id="fotografiausuario"></InputFile>
+                </div>
+            </div>
+
+            @if (estaActualizado == false)
+            {
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="col-form-label" for="correousuario">Correo</label>
+                        <input required placeholder="correo@gmail.com" class="form-control" @bind-value="@usuario.CorreoUsuario" id="correousuario" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="col-form-label" for="contrasenausuario">Contraseña</label>
+                        <input required placeholder="Contraseña" class="form-control" @bind-value="@usuario.ContrasenaUsuario" id="contrasenausuario" />
+                    </div>
+                </div>
+
+            }
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="col-form-label" for="objprousuario">Objetivos Profesionales</label>
+                    <input required placeholder="Describe brevemente tus aspiraciones" class="form-control" @bind-value="@usuario.ObjProUsuario" id="objprousuario" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="col-form-label" for="experienciausuario">Experiencia Laboral</label>
+                    <input placeholder="Describe tu experiencia laboral" class="form-control" @bind-value="@usuario.ExperienciaUsuario" id="experienciausuario" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="col-form-label" for="habilidadusuario">Hablidades</label>
+                    <input required placeholder="Describe tus habilidades" class="form-control" @bind-value="@usuario.HabilidadUsuario" id="habilidadusuario" />
+                </div>
+                <div class="col-md-6">
+                    <label class="col-form-label" for="educacionusuario">Nivel Academico</label>
+                    <input required placeholder="Nivel academico" class="form-control" @bind-value="@usuario.EducacionUsuario" id="educacionusuario" />
+                </div>
+            </div>
+
+            <br />
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Guardar</button>
+                <a class="btn btn-danger" href="/Usuarios">Cancelar</a>
+            </div>
+
+            <br />
+
+        </form>
+    </EditForm>
+</div>
+@code{
+    [Parameter]
+
+    public int id { get; set; }
+
+    public bool estaActualizado { get; set; } = false;
+
+    string mensaje = "Aun no ha seleccionado algun archivo";
+
+    IReadOnlyList<IBrowserFile> archivoSeleccionado;
+
+    bool cargando = true;
+
+    Usuario usuario = new Usuario();
+
+    protected override async Task OnInitializedAsync()
+    {
+        estaActualizado = id != 0;
+        if (estaActualizado)
+        {
+            var response = await http.GetFromJsonAsync<Usuario>($"api/Usuario/{id}");
+            if (response != null)
+            {
+                usuario = response;
+            }
+        }
+        cargando = false;
+    }
+
+    private void SubirImagen(InputFileChangeEventArgs im)
+    {
+        archivoSeleccionado = im.GetMultipleFiles();
+        mensaje = $"{archivoSeleccionado.Count} archivo seleccionado";
+        this.StateHasChanged();
+    }
+
+
+
+    protected async Task Guardar()
+    {
+        foreach (var archivo in archivoSeleccionado)
+        {
+            var nombreImagen = usuario.FotografiaUsuario;
+            Stream stream = archivo.OpenReadStream();
+
+            var carpeta = $"{env.WebRootPath}\\img\\UsuariosImg\\{archivo.Name}";
+
+            if (estaActualizado)
+            {
+                var carpetaAct = $"{env.WebRootPath}\\img\\UsuariosImg\\";
+                string rutaArchivo = Path.Combine(carpetaAct, nombreImagen);
+                FileInfo infoArchivo = new FileInfo(rutaArchivo);
+
+                if (infoArchivo.Exists)
+                {
+                    infoArchivo.Delete();
+                }
+
+            }
+
+            usuario.FotografiaUsuario = archivo.Name;
+            FileStream fileStream = File.Create(carpeta);
+            await stream.CopyToAsync(fileStream);
+            stream.Close();
+            fileStream.Close();
+        }
+
+        mensaje = $"{archivoSeleccionado.Count} archivo guardado";
+        this.StateHasChanged();
+
+        usuario.NivelUsuario = "Usuario";
+
+        HttpResponseMessage response;
+        if (estaActualizado)
+        {
+            response = await http.PutAsJsonAsync<Usuario>($"api/Usuario/ActualizarUsuario/{id}", usuario!);
+        }
+        else
+        {
+            response = await http.PostAsJsonAsync<Usuario>($"api/Usuario/CrearUsuario", usuario!);
+            if (response.IsSuccessStatusCode)
+            {
+                await agregarUsuarioMessage();
+                await Task.Delay(2500);
+                NavigationManager.NavigateTo("/usuarios");
+            }
+        }
+        Usuario guardado = response.Content.ReadFromJsonAsync<Usuario>().Result;
+        NavigationManager.NavigateTo("/usuarios");
+
+
+    }
+
+    protected async Task agregarUsuarioMessage()
+    {
+        await js.InvokeVoidAsync("agregarUsuario");
+    }
+
+
+
+}

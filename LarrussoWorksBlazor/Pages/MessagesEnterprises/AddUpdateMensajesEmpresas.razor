@@ -1,0 +1,82 @@
+﻿@page "/mensajesempresa/add"
+@page "/mensajesempresa/update/{id:int}"
+
+@using LarrussoWorksBlazor.Data.Models
+@using LarrussoWorksBlazor.Data
+@inject HttpClient http
+@using System.Net.Http
+@using System.Net.Http.Json
+@inject NavigationManager NavigationManager
+
+
+<div class="container">
+    <div class="text-center">
+        <h1>@(estaActualizado ? $"Editar Mensaje [Id: {mensajesempresas.IdMensajeEmpresa}]" : "Agregar Mensaje")</h1>
+    </div>
+
+    <EditForm Model="@mensajesempresas">
+        <form class="container-border" @onsubmit="Guardar">
+            <div class="mb-2">
+                <label class="col-form-label" for="idempresa">Empresa</label>
+                <input required class="form-control" @bind-value="@mensajesempresas.IdEmpresa" id="idempresa" />
+            </div>
+
+            <div class="mb-2">
+                <label class="col-form-label" for="idsuario">Usuario</label>
+                <input required class="form-control" @bind-value="@mensajesempresas.IdUsuario" id="idsuario" />
+            </div>
+
+            <div class="mb-2">
+                <label class="col-form-label" for="mensajeempresa">Mensaje</label>
+                <input required class="form-control" @bind-value="@mensajesempresas.MensajeEmpresa" id="mensajeempresa" />
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Guardar</button>
+                <a class="btn btn-danger" href="/Mensajes">Cancelar</a>
+            </div>
+
+        </form>
+    </EditForm>
+
+</div>
+
+
+@code{ [Parameter]
+
+    public int id { get; set; }
+
+    public bool estaActualizado { get; set; } = false;
+
+    bool cargando = true;
+
+    MensajesEmpresa mensajesempresas = new MensajesEmpresa();
+
+    protected override async Task OnInitializedAsync()
+    {
+        estaActualizado = id != 0;
+        if (estaActualizado)
+        {
+            var response = await http.GetFromJsonAsync<MensajesEmpresa>($"api/MensajeEmpresa/{id}");
+            if (response != null)
+            {
+                mensajesempresas = response;
+            }
+        }
+        cargando = false;
+    }
+
+    protected async Task Guardar()
+    {
+        HttpResponseMessage response;
+        if (estaActualizado)
+        {
+            response = await http.PutAsJsonAsync<MensajesEmpresa>($"api/MensajeEmpresa/ActualizarMensajesEmpresa/{id}", mensajesempresas!);
+        }
+        else
+        {
+            response = await http.PostAsJsonAsync<MensajesEmpresa>($"/api/MensajeEmpresa/CrearMensajesEmpresa", mensajesempresas!);
+        }
+        MensajesEmpresa guardado = response.Content.ReadFromJsonAsync<MensajesEmpresa>().Result;
+        NavigationManager.NavigateTo("/mensajesempresa");
+    } }

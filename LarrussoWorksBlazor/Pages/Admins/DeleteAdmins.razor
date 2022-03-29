@@ -1,0 +1,35 @@
+﻿@page "/administradores/delete/{id:int}"
+@using LarrussoWorksBlazor.Data.Models
+@using LarrussoWorksBlazor.Data
+@using System.Net.Http
+@using System.Net.Http.Json
+@inject HttpClient http
+@inject NavigationManager NavigationManager;
+
+<h1>¿Está seguro que desea borrar al Administrador?</h1>
+
+<button class="btn btn-outline-success" @onclick="ConfirmarEliminacion">Confirmar</button>
+<a class="btn btn-outline-danger" href="/administradores">Cancelar</a>
+
+@code { 
+    
+    [Parameter]
+            
+    public int id { get; set; }
+            
+    Administrador administrador;
+            
+    protected override async Task OnInitializedAsync()
+    {
+        administrador = await http.GetFromJsonAsync<Administrador>($"api/Administrador/{id}");
+    }
+    
+    protected async Task ConfirmarEliminacion()
+    {
+        var response = await http.DeleteAsync($"api/Administrador/BorrarAdministrador/{id}");
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/administradores");
+        }
+    }  
+}

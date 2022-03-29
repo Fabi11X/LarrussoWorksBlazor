@@ -1,0 +1,136 @@
+﻿@page "/login"
+
+@using LarrussoWorksBlazor.Data.Models
+@using LarrussoWorksBlazor.Data
+@using System.Net.Http
+@using System.Net.Http.Json
+@inject HttpClient http
+@inject NavigationManager NavigationManager
+
+@inject ILocalStorage LocalStorage
+
+
+<div class="d-lg-flex half">
+    <div class="bg order-1 order-md-2" style="background-image: url(https://media.vogue.mx/photos/5c070c6e32b1ca5cc8f0586a/2:3/w_2560%2Cc_limit/como_tener_exito_en_tu_primer_empleo_6729.jpg) "></div>
+    <div class="contents order-2 order-md-1">
+
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+
+        <div class="container">
+            <EditForm Model="@autenticacion">
+                <div class="row align-items-center justify-content-center">
+                    <div class="col-md-7">
+                        <h3>Iniciar Sesión <strong>Larusso Works</strong></h3>
+                        <p class="mb-4"></p>
+                        <form @onsubmit="Guardar">
+                            <div class="form-group first">
+                                <label for="correologin">Correo</label>
+                                <InputText class="form-control" @bind-Value="@autenticacion.Correo" placeholder="email@gmail.com" id="correologin"></InputText>
+                            </div>
+                            <div class="form-group last mb-3">
+                                <label for="password">Contraseña</label>
+                                <InputText class="form-control" @bind-Value="@autenticacion.Contrasena" type="password" placeholder="Contraseña" id="password"></InputText>
+                            </div>
+
+                            <h3>@mensaje</h3>
+
+                            <button type="submit" class="btn btn-block btn-primary">Ingresar</button>
+                            <br />
+                            <br />
+                            <br />
+                            <h2>¿Tienes alguna cuenta? o Regístrate</h2>
+                            <a href="/registroUsuario">Crear cuenta de usuario</a>
+                            <a href="/empresaRegistro"> Crear cuenta de empresa</a>
+
+
+                        </form>
+                    </div>
+                </div>
+            </EditForm>
+            
+        </div>
+    </div>
+</div>
+
+
+@code {
+
+    string mensaje = "";
+
+    Autenticacion autenticacion = new Autenticacion();
+
+    Usuario usuario = new Usuario();
+    Administrador admin = new Administrador();
+    Empresa empresa = new Empresa();
+
+    private void rEmpresas()
+    {
+       NavigationManager.NavigateTo("/empresaRegistro");
+    }
+
+    private void rUsuarios()
+    {
+        NavigationManager.NavigateTo("/registroUsuario");
+    }
+
+    protected async Task Guardar()
+    {
+        try
+        {
+            usuario = await http.GetFromJsonAsync<Usuario>($"api/Usuario/Login/{autenticacion.Correo}/{autenticacion.Contrasena}");
+            autenticacion.id = usuario.IdUsuario;
+            autenticacion.Nivel = usuario.NivelUsuario;
+
+            await LocalStorage.SetValue<Autenticacion>(ValuesKeys.Persona, autenticacion);
+
+
+
+            NavigationManager.NavigateTo("/");
+            NavigationManager.NavigateTo("/", forceLoad: true);
+
+        }
+        catch
+        {
+            try
+            {
+                admin = await http.GetFromJsonAsync<Administrador>($"api/Administrador/Login/{autenticacion.Correo}/{autenticacion.Contrasena}");
+                autenticacion.id = admin.IdAdmin;
+                autenticacion.Nivel = admin.NivelAdmin;
+
+                await LocalStorage.SetValue<Autenticacion>(ValuesKeys.Persona, autenticacion);
+
+
+                NavigationManager.NavigateTo("/");
+                NavigationManager.NavigateTo("/", forceLoad: true);
+
+            }
+            catch
+            {
+                try
+                {
+                    empresa = await http.GetFromJsonAsync<Empresa>($"api/Empresa/Login/{autenticacion.Correo}/{autenticacion.Contrasena}");
+                    autenticacion.id = empresa.IdEmpresa;
+                    autenticacion.Nivel = empresa.NivelEmpresa;
+
+                    await LocalStorage.SetValue<Autenticacion>(ValuesKeys.Persona, autenticacion);
+
+
+
+                    NavigationManager.NavigateTo("/");
+                    NavigationManager.NavigateTo("/", forceLoad: true);
+                }
+                catch
+                {
+                    mensaje = "Usuario o Contraseña Invalidos";
+
+                }
+            }
+        }
+    }
+
+
+}

@@ -1,0 +1,34 @@
+﻿@page "/empleos/delete/{id:int}"
+@using LarrussoWorksBlazor.Data.Models
+@using LarrussoWorksBlazor.Data
+@using System.Net.Http
+@using System.Net.Http.Json
+@inject HttpClient http
+@inject NavigationManager NavigationManager;
+
+<h1>¿Está seguro que desea borrar el Empleo?</h1>
+
+<button class="btn btn-outline-success" @onclick="ConfirmarEliminacion">Confirmar</button>
+<a class="btn btn-outline-danger" href="/empleos">Cancelar</a>
+
+@code { [Parameter]
+
+    public int id { get; set; }
+
+    Empleo empleo;
+
+    protected override async Task OnInitializedAsync()
+    {
+        empleo = await http.GetFromJsonAsync<Empleo>($"api/Empleo/{id}");
+    }
+
+    protected async Task ConfirmarEliminacion()
+    {
+        var response = await http.DeleteAsync($"api/Empleo/BorrarEmpleo/{id}");
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/empleos");
+        }
+    } 
+    
+}

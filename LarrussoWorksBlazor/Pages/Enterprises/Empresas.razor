@@ -1,0 +1,165 @@
+﻿@page "/empresas"
+
+@using LarrussoWorksBlazor.Data.Models
+@using LarrussoWorksBlazor.Data
+@inject HttpClient http
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Text.Json
+
+
+<div class="container">
+    <br />
+    <div class="title">
+    <div class="title_content">
+        <h1>Empresas</h1>
+    </div>
+    <div class="title__btn">
+        @if (atn.Nivel == "Administrador")
+         {
+             <a href="/empresas/add" class="btn btn-success">
+                    <i class="fas fas-plus"></i>
+                    &nbsp;
+                    Agregar
+             </a>
+         }
+    
+    </div>
+</div>
+
+<p>Tabla de los Empresas</p>
+
+@if (empresas == null)
+{
+    <p><em>Cargando...</em></p>
+}
+else
+{
+    <div class="form-inline">
+        <label class="sr-only" for="nombre-filtro">Buscar</label>
+        <input type="text" class="form-control mb-2 mr-sm-2"
+               @bind="nombreEmpresaFiltro" placeholder="Filtrar por Nombre" />
+        <button type="button" class="btn btn-primary mr-sm-2 mb-2"
+                @onclick="Buscar">
+            Filtrar
+        </button>
+        <button type="button" class="btn btn-danger mb-2"
+                @onclick="Limpiar">
+            Limpiar
+        </button>
+        </div>
+        
+
+     <div class="row">
+        @foreach (var empresa in empresas)
+        {
+            <div class="col-md-4">
+                <div class="card text-white bg-dark mb-3 text-center" style="margin: 10px;">
+                <div class="card-header">
+                    <strong>@empresa.NivelEmpresa: @empresa.NombreEmpresa</strong>
+                </div>
+                <div class="card-body">
+                    <div class="col">
+                        <img src="/img/EmpresaImg/@empresa.LogoEmpresa"width="150" />
+                    </div>
+                    <div class="col">
+                        <span>@empresa.CorreoEmpresa</span>
+                    </div>
+                    <div class="col">
+                        <span>@empresa.TelefonoEmpresa</span>
+                    </div>
+                </div>
+                <div class="card-footer text-center">
+                    @if (atn.Nivel != "Administrador")
+                    {
+                        <span class="icon">
+                        <a href="/empresas/detalles/@empresa.IdEmpresa" class="btn btn-info" title="Detalles">Detalles</a>
+                        </span>
+                       
+                    }
+                    else
+                    {
+                        <span class="icon">
+                        <a href="/empresas/detalles/@empresa.IdEmpresa" class="btn btn-info" title="Detalles">Detalles</a>
+                        </span>
+                        <span class="icon">
+                        <a href="/empresas/delete/@empresa.IdEmpresa" class="btn btn-danger" title="Eliminar">Eliminar</a>
+                        </span>
+                    }
+                   
+                </div>
+                </div>
+                
+            </div>
+        }
+    </div>
+
+    <Paginacion PaginasTotales="paginasTotales" PaginaActual="paginaActual"
+                PaginaSeleccionada="PaginaSeleccionada">
+    </Paginacion>
+}
+
+</div>
+
+@code { 
+    //Paginacion Empresa
+    private int paginasTotales;
+    private int paginaActual;
+
+    //Busqueda Empresa
+    private string nombreEmpresaFiltro = string.Empty;
+
+    private Autenticacion atn = new Autenticacion();
+
+
+    private readonly string api = "api/Empresa/ObtenerEmpresaII";
+    private IList<Empresa> empresas;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        atn = IsDataNull.CreateInstanceIfIsNull<Autenticacion>(await LocalStorage.GetValue<Autenticacion>(ValuesKeys.Persona));
+
+        await ObtenerEmpresa();
+        //empresas = await http.GetFromJsonAsync<IList<Empresa>>(api);
+    }
+
+    private async Task PaginaSeleccionada(int pagina)
+    {
+        paginaActual = pagina;
+        await ObtenerEmpresa(pagina);
+    }
+
+    private async Task Buscar()
+    {
+        paginaActual = 1;
+        await ObtenerEmpresa();
+    }
+
+    private async Task Limpiar()
+    {
+        nombreEmpresaFiltro = string.Empty;
+        paginaActual = 1;
+        await ObtenerEmpresa();
+    }
+
+    async Task ObtenerEmpresa(int pagina = 1, int cantidadRegistroAMostrar = 6)
+    {
+        var httpResponse = await http.GetAsync($"{api}?pagina={pagina}&CantidadAMostrar={cantidadRegistroAMostrar}&nombre={nombreEmpresaFiltro}");
+
+        if (httpResponse.IsSuccessStatusCode)
+        {
+            paginasTotales = int.Parse(httpResponse.Headers.GetValues("totalPaginas").FirstOrDefault());
+
+            var responseString = await httpResponse.Content.ReadAsStringAsync();
+
+            empresas = JsonSerializer.Deserialize<IList<Empresa>>(responseString, new JsonSerializerOptions()
+            { PropertyNameCaseInsensitive = true });
+        }
+
+        else
+        {
+        }
+    }
+
+    }

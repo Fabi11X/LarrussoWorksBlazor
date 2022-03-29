@@ -1,0 +1,35 @@
+﻿@page "/categorias/delete/{id:int}"
+@using LarrussoWorksBlazor.Data.Models
+@using LarrussoWorksBlazor.Data
+@using System.Net.Http
+@using System.Net.Http.Json
+@inject HttpClient http
+@inject NavigationManager NavigationManager;
+
+<h1>¿Está seguro que desea borrar la Categoría?</h1>
+
+<button class="btn btn-outline-success" @onclick="ConfirmarEliminacion">Confirmar</button>
+<a class="btn btn-outline-danger" href="/categorias">Cancelar</a>
+
+@code { 
+    
+    [Parameter]
+            
+    public int id { get; set; }
+            
+    Categoria categoria;
+            
+    protected override async Task OnInitializedAsync()
+    {
+        categoria = await http.GetFromJsonAsync<Categoria>($"api/Categoria/{id}");
+    }
+    
+    protected async Task ConfirmarEliminacion()
+    {
+        var response = await http.DeleteAsync($"api/Categoria/BorrarCategoria/{id}");
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/categorias");
+        }
+    }  
+}

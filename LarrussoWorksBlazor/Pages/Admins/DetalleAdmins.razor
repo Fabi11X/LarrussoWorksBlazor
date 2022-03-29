@@ -1,0 +1,63 @@
+﻿@page "/administradores/detalles/{id:int}"
+
+@using LarrussoWorksBlazor.Data.Models
+@using LarrussoWorksBlazor.Data
+@inject HttpClient http
+@using System.Net.Http
+@using System.Net.Http.Json
+
+<div class="container">
+    <div class="text-center">
+        <br />
+        <h1>Detalles del Administrador con el Id: @administrador.IdAdmin</h1>
+
+        <div class="col-md-8">
+            <div class="card text-white bg-dark mb-3 text-center" style="margin: 10px;">
+                <div class="card-header">
+                    <strong>@administrador.NivelAdmin: @administrador.NombreAdmin @administrador.ApellidoAdmin</strong>
+                </div>
+                <div class="card-body">
+                    <div class="col-12">
+                        <img src="/img/AdministradorsImg/@administrador.FotografiaAdmin" width="350" />
+                    </div>
+                    <div class="col-12">
+                        <span><strong>Sexo: </strong>@administrador.SexoAdmin</span>
+                    </div>
+                    <div class="col-12">
+                        <span><strong>Nacimiento: </strong>@administrador.FechanacAdmin</span>
+                    </div>
+                    <div class="col-12">
+                        <span><strong>Correo: </strong>@administrador.CorreoAdmin</span>
+                    </div>
+                    <div class="col-12">
+                        <span><strong>Teléfono: </strong>@administrador.TelefonoAdmin</span>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <span class="text-center">
+                        <a href="/administradores/update/@administrador.IdAdmin" class="btn btn-warning" title="Editar">Editar</a>
+                    </span>
+                    <span class="text-center">
+                        <a class="btn btn-primary" href="/administradores">Regresar</a>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+
+</div>
+
+
+@code { [Parameter]
+
+            public int id { get; set; }
+
+            Administrador administrador = new Administrador();
+
+            protected override async Task OnInitializedAsync()
+            {
+                administrador = await http.GetFromJsonAsync<Administrador>($"api/Administrador/{id}");
+            } }
